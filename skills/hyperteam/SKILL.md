@@ -15,11 +15,14 @@ ______________________________________________________________________
 
 ## Phase 0: Pre-Flight
 
-> **Prerequisites:** This skill requires the Agent Teams feature.
-> Ensure `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set in your environment.
-> Also requires `gh` CLI installed and authenticated for PR creation.
+> **Prerequisites:** This skill requires the Agent Teams feature and `gh` CLI installed.
+>
+> 1. Ensure `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set in your environment.
+> 2. Check that `gh` CLI is installed and authenticated for PR creation.
 
-Run these checks in order. **Stop and surface each issue as you encounter it.**
+Run these checks in order.
+
+> **IMPORTANT: Stop and surface each issue as you encounter it.**
 
 ### Step 1 — Read settings and derive branch/slug
 

@@ -1,7 +1,7 @@
 ---
 name: prd
 description: "Multi-phase PRD generator. Outputs plans/<branch>-prd.md ready for /hyperteam."
-argument-hint: "<feature description or path/to/seedling.md>"
+argument-hint: "<feature description or external sources (e.g., plans/auth-seedling.md, GitHub/JIRA issue, URL(s), etc.)>"
 user-invocable: true
 disable-model-invocation: true
 ---
@@ -31,13 +31,17 @@ Before accepting any requirement at face value, actively search for and surface:
 3. **Ambiguities that hide conflicts** — vague requirements that seem compatible but would force contradictory
    implementation choices once an agent tries to write code.
 
-When conflicts are detected, **push back** — use `AskUserQuestion` to clearly state the conflict, why it matters, and
-propose concrete alternatives, blocking until the user resolves it. **Do not proceed to the next phase until conflicts
-are resolved.**
+If ambiguities are hiding conflicts, interview the user instead with clarifying questions via `AskUserQuestion` to
+disambiguate and reveal the missing requirements and/or new conflicts.
 
-> **Seedling philosophy:** A seedling PRD is the operator's intent distilled into a draft document — it gives the skill
-> a head start and reduces unnecessary round-trips. But a seedling is not sacred: if it contains conflicts, challenge
-> them just as you would any other input.
+When conflicts are detected, **push back** — use `AskUserQuestion` to clearly state the conflict, why it matters, and
+propose concrete alternatives, blocking until the user resolves it.
+
+**Do not proceed to the next phase until all ambiguities and conflicts are resolved.**
+
+> **Seedling philosophy:** A seedling PRD or external document source such as a GitHub or JIRA issue is the operator's
+> intent distilled into a draft document — it gives the skill a head start with more details. But a seedling is not sacred:
+> challenge them just as you would any other input.
 
 ______________________________________________________________________
 
