@@ -27,7 +27,6 @@ mdformat (with GFM, footnote, config, ruff, and toc plugins) runs on all Markdow
 ### Two-step workflow
 
 1. **`/prd`** (`skills/prd/SKILL.md`) — Multi-phase PRD generator. Interviews the user (3 phases of refinement with conflict detection), outputs `plans/<branch>-prd.md`. Creates a `feat-<slug>` branch and sets `CLAUDE_CODE_TASK_LIST_ID` in `.claude/settings.local.json`.
-
 1. **`/hyperteam`** (`skills/hyperteam/SKILL.md`) — Parses the PRD into a task DAG, creates a specialist agent team via `TeamCreate`, seeds native tasks, and monitors until the back-pressure gate passes. Supports mid-run resume via `plans/<branch>-team-state.json`.
 
 ### Agent roles
