@@ -60,13 +60,13 @@ Hyperteam is a two-step process. First you build a PRD through a structured inte
 ### 1. Generate a PRD
 
 ```
-/prd Add user authentication with OAuth2 support
+/hyperteam:prd Add user authentication with OAuth2 support
 ```
 
 or from a seedling document:
 
 ```
-/prd plans/auth-seedling.md
+/hyperteam:prd plans/auth-seedling.md
 ```
 
 The PRD skill will:
@@ -79,7 +79,7 @@ The PRD skill will:
 ### 2. Run the team
 
 ```
-/hyperteam
+/hyperteam:hyperteam
 ```
 
 Hyperteam will:
