@@ -1,0 +1,16 @@
+{
+  "name": "hyper-plugs",
+  "owner": {
+    "name": "Sam Romano"
+  },
+  "metadata": {
+    "description": "A curated Claude Code marketplace and custom plugins by samrom3 for empowering everyday Software Engineers."
+  },
+  "plugins": [
+    {
+      "name": "hyperloop",
+      "source": "./hyperloop",
+      "keywords": ["prd", "agent-team", "autonomous", "ralph-loop", "test-driven", "tdd", "spec-driven"]
+    }
+  ]
+}
