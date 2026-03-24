@@ -1,6 +1,6 @@
 # Claude Hyper Plugs
 
-A curated marketplace of custom Claude Code plugins built by @samrom3 with help from his friends and collegues.
+A curated marketplace of custom Claude Code plugins built by @samrom3 with help from his friends and colleagues.
 
 ## Available Plugins
 

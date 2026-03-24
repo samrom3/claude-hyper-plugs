@@ -66,7 +66,7 @@ Hyperloop is a two-step process. First you build a PRD through a structured inte
 or from a seedling document:
 
 ```
-/hyperteam:prd plans/auth-seedling.md
+/hyperloop:prd plans/auth-seedling.md
 ```
 
 The PRD skill will:
@@ -79,7 +79,7 @@ The PRD skill will:
 ### 2. Run the team
 
 ```
-/hyperteam:hyperteam
+/hyperloop:hyperteam
 ```
 
 Hyperloop will:
