@@ -60,7 +60,7 @@ Hyperloop is a two-step process. First you build a PRD through a structured inte
 ### 1. Generate a PRD
 
 ```
-/hyperteam:prd Add user authentication with OAuth2 support
+/hyperloop:prd Add user authentication with OAuth2 support
 ```
 
 or from a seedling document:
