@@ -9,8 +9,8 @@
   },
   "plugins": [
     {
-      "name": "hyperteam",
-      "source": "./hyperteam",
+      "name": "hyperloop",
+      "source": "./hyperloop",
       "keywords": ["prd", "agent-team", "autonomous", "ralph-loop", "test-driven", "tdd", "spec-driven"]
     }
   ]

@@ -27,7 +27,7 @@ claude-hyper-plugs/
 
 | Plugin      | Directory    | Description                                                         |
 | ----------- | ------------ | ------------------------------------------------------------------- |
-| `hyperteam` | `hyperteam/` | Autonomous specialist agent team with PRD-driven planning and gates |
+| `hyperloop` | `hyperloop/` | Autonomous specialist agent team with PRD-driven planning and gates |
 
 ## Verification
 

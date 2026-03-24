@@ -4,14 +4,14 @@ A curated marketplace of custom Claude Code plugins built by @samrom3 with help 
 
 ## Available Plugins
 
-### [Hyperteam](hyperteam/)
+### [Hyperloop](hyperloop/)
 
 AI-augmented development for engineers who stay in the loop. Interviews you to build a PRD (with requirement analysis and conflict resolution), then runs an autonomous specialist agent team with back-pressure gates to implement it — while you review, guide, and approve at every milestone.
 
 - **Skills:** `/prd`, `/hyperteam`.
 - **Agents:** lead, reviewer, worker, techwriter + Python language pack
 
-Refer to the [Hyperteam guide](/hyperteam/README.md) for more usage and details.
+Refer to the [Hyperloop guide](/hyperloop/README.md) for more usage and details.
 
 ## Installation
 
@@ -24,7 +24,7 @@ Refer to the [Hyperteam guide](/hyperteam/README.md) for more usage and details.
 ### 2. Install a plugin
 
 ```
-/plugin install hyperteam@hyper-plugs
+/plugin install hyperloop@hyper-plugs
 ```
 
 See the [Claude Code plugin marketplaces documentation](https://code.claude.com/docs/en/plugin-marketplaces) for details.

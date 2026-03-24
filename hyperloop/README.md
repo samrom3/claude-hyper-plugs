@@ -1,8 +1,8 @@
-# Hyperteam
+# Hyperloop
 
 AI-augmented development for engineers who stay in the loop.
 
-Hyperteam interviews you to build a PRD (with requirement analysis and conflict resolution), then
+Hyperloop interviews you to build a PRD (with requirement analysis and conflict resolution), then
 runs an autonomous specialist agent team with back-pressure gates to implement it — while you
 review, guide, and approve at every milestone.
 
@@ -19,18 +19,18 @@ review, guide, and approve at every milestone.
 
 ## Installation
 
-Hyperteam is installed via the [hyper-plugs marketplace](../README.md):
+Hyperloop is installed via the [hyper-plugs marketplace](../README.md):
 
 ```
 /plugin marketplace add samrom3/claude-hyper-plugs
-/plugin install hyperteam@hyper-plugs
+/plugin install hyperloop@hyper-plugs
 ```
 
 See the [plugin marketplaces documentation](https://code.claude.com/docs/en/plugin-marketplaces) for details.
 
 ## Usage
 
-Hyperteam is a two-step process. First you build a PRD through a structured interview, then the agent team executes it autonomously against a back-pressure gate:
+Hyperloop is a two-step process. First you build a PRD through a structured interview, then the agent team executes it autonomously against a back-pressure gate:
 
 ```
                     ┌─────────────────────────────────────────────────────────┐
@@ -82,7 +82,7 @@ The PRD skill will:
 /hyperteam:hyperteam
 ```
 
-Hyperteam will:
+Hyperloop will:
 
 - Parse the PRD into a dependency-ordered task DAG
 - Show you the plan and wait for approval
@@ -92,7 +92,7 @@ Hyperteam will:
 
 ### Resuming interrupted runs
 
-If a session ends mid-run (quota exhaustion, network drop, etc.), just run `/hyperteam` again.
+If a session ends mid-run (quota exhaustion, network drop, etc.), just run `/hyperloop:hyperteam` again.
 It detects the existing `team-state.json`, shows you what's done and what's left, and picks up
 where it stopped.
 
@@ -134,10 +134,10 @@ We also have some additional Python specific agents included. The `hyperteam-lea
 
 ## Language packs
 
-Hyperteam ships with a **Python pack** (`agents/packs/python/`) that provides specialized
+Hyperloop ships with a **Python pack** (`agents/packs/python/`) that provides specialized
 scaffolder and builder agents for Python projects.
 
-Unlike language-specific forks, a single hyperteam installation works across mixed-stack repos.
+Unlike language-specific forks, a single hyperloop installation works across mixed-stack repos.
 The role-hint system activates only the language-pack agents relevant to each task — if no
 language-specific agent matches, the generic `hyperteam-worker` handles it.
 
@@ -156,7 +156,7 @@ For example, a TypeScript pack might include:
 
 ### Verification commands
 
-Hyperteam agents read `CLAUDE.md` to find your project's lint/test command. Ensure your
+Hyperloop agents read `CLAUDE.md` to find your project's lint/test command. Ensure your
 `CLAUDE.md` has a clear "Tooling" section, for example:
 
 ````markdown
@@ -183,9 +183,9 @@ and take precedence when names overlap.
 
 **Inspired by [hyperworker](https://github.com/joseph-ravenwolfe/hyperworker)** by Joseph Ravenwolfe.
 
-**Key architectural differences in hyperteam:**
+**Key architectural differences in hyperloop:**
 
-|                           | hyperworker                                    | hyperteam                                                                                                            |
+|                           | hyperworker                                    | hyperloop                                                                                                            |
 | ------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | **Language support**      | Pick the language-specific version of the repo | Single install; activate language packs per task — works in mixed-stack repos                                        |
 | **Requirement gathering** | Prompt-driven                                  | Structured user interview with explicit requirement analysis and conflict deconfliction before any code is written   |
