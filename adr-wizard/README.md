@@ -25,6 +25,8 @@ convention, and integrates gracefully with the `hyperloop` gate when both plugin
 
 ## Installation<a name="installation"></a>
 
+Make sure you have the [`hyper-plugs`](/README.md) marketplace installed, then install `adr-wizard`:
+
 ```bash
 claude plugin install adr-wizard@hyper-plugs
 ```
@@ -50,17 +52,18 @@ directory index.
 ```
 
 The skill discovers your ADR directory from CLAUDE.md, finds the next available number, creates
-`NNN-<slug>.md`, and adds it to `README.md`. You fill in Context, Decision, and Consequences.
+`NNNN-<slug>.md`, and adds it to `README.md`. It drafts all sections (Context, Decision,
+Consequences) from conversation context, interviewing you for any missing details.
 
 ### adr-supersede<a name="adr-supersede"></a>
 
 Creates a new ADR that replaces an existing one. Updates the old ADR's status to
-`Superseded by ADR-NNN` and adds a `Supersedes: ADR-MMM` field to the new one.
+`Superseded by ADR-NNNN` and adds a `Supersedes: ADR-MMMM` field to the new one.
 
 ```
 /adr-supersede
 # optionally supply the ADR number to supersede:
-/adr-supersede 003
+/adr-supersede 0003
 ```
 
 ### adr-deprecate<a name="adr-deprecate"></a>
@@ -71,7 +74,7 @@ reason in the file.
 ```
 /adr-deprecate
 # optionally supply the ADR number:
-/adr-deprecate 005
+/adr-deprecate 0005
 ```
 
 ### adr-check<a name="adr-check"></a>

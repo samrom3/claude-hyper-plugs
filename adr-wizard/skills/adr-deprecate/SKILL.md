@@ -28,16 +28,16 @@ Step 2). Wait for confirmation.
 
 ## Step 3 — Identify the ADR to deprecate
 
-1. List all files in `target_dir` matching `NNN-*.md`.
+1. List all files in `target_dir` matching `NNNN-*.md`.
 2. If the user invoked the skill with an ADR number (e.g., `/adr-deprecate 003`), use it
-   directly: find the file matching `003-*.md`.
+   directly: find the file matching `0003-*.md`.
 3. Otherwise, display the list of current ADRs with their numbers, titles, and statuses, and
    ask:
    > Which ADR do you want to deprecate? (enter the ADR number or filename)
 4. Confirm the selection:
-   > Deprecating: ADR-NNN — <title>. Proceed? (y/n)
+   > Deprecating: ADR-NNNN — <title>. Proceed? (y/n)
 5. If the ADR's current status is already `Deprecated`, warn the user and stop:
-   > ADR-NNN is already deprecated.
+   > ADR-NNNN is already deprecated.
 
 ## Step 4 — Get deprecation reason
 
@@ -69,7 +69,7 @@ Use this as `deprecation_reason`.
 
 Inform the user:
 
-> Deprecated ADR-NNN: <title>
+> Deprecated ADR-NNNN: <title>
 > Reason: <deprecation_reason>
-> Updated: `<target_dir>/<NNN>-<slug>.md`
+> Updated: `<target_dir>/<NNNN>-<slug>.md`
 > Updated index: `<target_dir>/README.md`

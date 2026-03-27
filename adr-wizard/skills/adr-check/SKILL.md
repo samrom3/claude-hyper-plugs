@@ -36,21 +36,21 @@ For each directory in `adr_dirs`, run all checks below. Track failures as a list
 
 ### Check 2.1 — ADR file structure
 
-1. List all files in the directory matching `NNN-*.md` (1+ digits, hyphen, any chars, `.md`).
+1. List all files in the directory matching `NNNN-*.md` (1+ digits, hyphen, any chars, `.md`).
    These are the ADR files.
 2. For each ADR file, verify:
    a. **Status present and non-empty:** The file contains a line matching `**Status:**` (or
       `## Status`) with a non-empty value after the colon. If missing or empty, add issue:
-      `[ADR-NNN] Missing or empty Status field`
+      `[ADR-NNNN] Missing or empty Status field`
    b. **Context non-trivial:** The file contains a `## Context` section whose body is at least
       one non-blank line that is not a placeholder (does not consist solely of whitespace, `TODO`,
       `TBD`, or the guidance text from the template). If missing or trivial, add issue:
-      `[ADR-NNN] ## Context section is empty or contains only placeholder text`
+      `[ADR-NNNN] ## Context section is empty or contains only placeholder text`
    c. **Decision non-trivial:** Same check for `## Decision`. If failing, add issue:
-      `[ADR-NNN] ## Decision section is empty or contains only placeholder text`
+      `[ADR-NNNN] ## Decision section is empty or contains only placeholder text`
    d. **Consequences present:** The file contains a `## Consequences` section. Content may be
       brief. If entirely absent, add issue:
-      `[ADR-NNN] ## Consequences section is missing`
+      `[ADR-NNNN] ## Consequences section is missing`
 
 ### Check 2.2 — Index sync
 
@@ -59,23 +59,23 @@ For each directory in `adr_dirs`, run all checks below. Track failures as a list
    - Skip index sync checks for this directory.
 2. Parse the README.md table: extract all ADR filenames or numbers linked in the table.
 3. For each ADR file in the directory, check it has a corresponding entry in the table. If not,
-   add issue: `[ADR-NNN] ADR file exists but has no entry in README.md index`
+   add issue: `[ADR-NNNN] ADR file exists but has no entry in README.md index`
 4. For each entry in the README.md table, check the referenced ADR file exists. If not, add
    issue: `[index entry] README.md references <filename> but file does not exist (orphaned entry)`
 
 ### Check 2.3 — Cross-reference integrity
 
-1. For each ADR file with a status of `Superseded by ADR-NNN`:
-   a. Verify `NNN-*.md` exists in the directory. If not, add issue:
-      `[ADR-MMM] Status says "Superseded by ADR-NNN" but ADR-NNN does not exist`
-   b. Read the referenced ADR (NNN). Verify it contains `Supersedes: ADR-MMM` (where MMM is
+1. For each ADR file with a status of `Superseded by ADR-NNNN`:
+   a. Verify `NNNN-*.md` exists in the directory. If not, add issue:
+      `[ADR-MMMM] Status says "Superseded by ADR-NNNN" but ADR-NNNN does not exist`
+   b. Read the referenced ADR (NNNN). Verify it contains `Supersedes: ADR-MMMM` (where MMM is
       the superseded ADR number). If not, add issue:
-      `[ADR-NNN] Missing "Supersedes: ADR-MMM" back-reference`
-2. For each ADR file with a `Supersedes: ADR-NNN` field:
-   a. Verify `NNN-*.md` exists. If not, add issue:
-      `[ADR-MMM] References "Supersedes: ADR-NNN" but ADR-NNN does not exist`
-   b. Read ADR NNN. Verify its status is `Superseded by ADR-MMM`. If not, add issue:
-      `[ADR-NNN] Expected status "Superseded by ADR-MMM" but found different status`
+      `[ADR-NNNN] Missing "Supersedes: ADR-MMMM" back-reference`
+2. For each ADR file with a `Supersedes: ADR-NNNN` field:
+   a. Verify `NNNN-*.md` exists. If not, add issue:
+      `[ADR-MMMM] References "Supersedes: ADR-NNNN" but ADR-NNNN does not exist`
+   b. Read ADR NNNN. Verify its status is `Superseded by ADR-MMMM`. If not, add issue:
+      `[ADR-NNNN] Expected status "Superseded by ADR-MMMM" but found different status`
 
 ## Step 3 — Build the validation report
 

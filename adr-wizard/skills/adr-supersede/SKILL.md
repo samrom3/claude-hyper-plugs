@@ -29,22 +29,22 @@ Use the confirmed path as `target_dir`.
 
 ## Step 3 — Identify the ADR being superseded
 
-1. List all files in `target_dir` matching `NNN-*.md`.
-2. If the user invoked the skill with an ADR number (e.g., `/adr-supersede 003`), use it
-   directly: find `003-*.md` as `old_adr`.
+1. List all files in `target_dir` matching `NNNN-*.md`.
+2. If the user invoked the skill with an ADR number (e.g., `/adr-supersede 0003`), use it
+   directly: find `0003-*.md` as `old_adr`.
 3. Otherwise, display the list of ADRs (numbers, titles, statuses) and ask:
    > Which ADR is being superseded? (enter the ADR number or filename)
 4. Confirm:
-   > Superseding: ADR-NNN — <title>. Proceed? (y/n)
-5. If the ADR's current status is `Superseded by ADR-MMM`, warn:
-   > ADR-NNN is already superseded by ADR-MMM. Supersede again? (y/n)
+   > Superseding: ADR-NNNN — <title>. Proceed? (y/n)
+5. If the ADR's current status is `Superseded by ADR-MMMM`, warn:
+   > ADR-NNNN is already superseded by ADR-MMMM. Supersede again? (y/n)
    Proceed only on confirmation.
 
 ## Step 4 — Get new ADR title
 
 Ask:
 
-> What is the title of the new ADR that supersedes ADR-NNN?
+> What is the title of the new ADR that supersedes ADR-NNNN?
 > (e.g., "Use Redis for session storage instead of PostgreSQL")
 
 Use this as `new_adr_title`. The new ADR will replace the decision in `old_adr`.
@@ -54,7 +54,7 @@ Use this as `new_adr_title`. The new ADR will replace the decision in `old_adr`.
 1. Determine `next_num` using the same auto-numbering logic as `adr-create` Step 3.
 2. Construct the filename: `<target_dir>/<next_num>-<slug>.md`.
 3. Fill in the template from `adr-create/references/adr-template.md`:
-   - Replace `NNN` with `next_num`.
+   - Replace `NNNN` with `next_num`.
    - Replace `Title` with `new_adr_title`.
    - Set `**Status:** Accepted` (superseding ADRs are accepted immediately).
    - Set `**Date:**` to today's date in `YYYY-MM-DD` format.

@@ -37,7 +37,7 @@ For each discovered ADR directory, the skill runs these checks:
 
 ### 2.1 ADR File Structure
 
-Each file matching `NNN-*.md` (where NNN is a zero-padded 3-digit number) in the directory is
+Each file matching `NNNN-*.md` (where NNNN is a zero-padded 4-digit number) in the directory is
 an ADR file. For each ADR file, verify:
 
 - The file contains a `## Status` section (or equivalent heading) with a non-empty value.
@@ -56,14 +56,14 @@ The ADR directory MUST contain a `README.md` file serving as the index. Verify:
 
 ### 2.3 Cross-Reference Integrity
 
-For ADRs with a `Superseded by ADR-NNN` status:
+For ADRs with a `Superseded by ADR-NNNN` status:
 
-- The referenced ADR (NNN) must exist in the directory.
-- The referenced ADR must contain a `Supersedes: ADR-MMM` reference back to the superseded ADR.
+- The referenced ADR (NNNN) must exist in the directory.
+- The referenced ADR must contain a `Supersedes: ADR-MMMM` reference back to the superseded ADR.
 
-For ADRs with a `Supersedes: ADR-NNN` field:
+For ADRs with a `Supersedes: ADR-NNNN` field:
 
-- The referenced ADR (NNN) must exist.
+- The referenced ADR (NNNN) must exist.
 - The referenced ADR's status must be `Superseded by ADR-<this>`.
 
 ---
@@ -79,7 +79,7 @@ ADR Check Report
 Directory: <path>
   Status: PASS | FAIL
   Issues:
-    - [ADR-NNN] <description of issue>
+    - [ADR-NNNN] <description of issue>
     - ...
 
 Directory: <path>
