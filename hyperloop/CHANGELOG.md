@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-26
+
+### Added
+
+- PRD selection at `/hyperteam` startup — scans `plans/` for `*-prd.md` files, categorises them
+  as unstarted or in-progress, and prompts the user to choose; supports creating several PRDs
+  upfront and executing them in any order
+- Concurrent session support — each `/hyperteam` session creates its own agent team via
+  `TeamCreate`, which automatically scopes the native task list by team name; multiple sessions
+  can run against different PRDs without interfering with each other.
+
+### Changed
+
+- Phase 0 of `/hyperteam` now scans `plans/` for PRDs instead of reading
+  `CLAUDE_CODE_TASK_LIST_ID` from `.claude/settings.local.json`
+- Phase 0 git branch step is now automatic: if the selected PRD's branch differs from the current
+  branch, `/hyperteam` checks it out locally or creates it from `origin/main`
+- `/prd` no longer writes `CLAUDE_CODE_TASK_LIST_ID` to `.claude/settings.local.json`; task list
+  scoping is handled automatically by `TeamCreate` via team name.
+
 ## [1.0.1] - 2026-03-26
 
 ### Added

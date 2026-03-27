@@ -76,13 +76,23 @@ The PRD skill will:
 - Surface conflicts and ambiguities before any code is written
 - Output `plans/<branch>-prd.md`
 
+You can generate multiple PRDs upfront — they accumulate in `plans/` and can be executed in any order.
+
 ### 2. Run the team
+
+> BEST-PRACTICE: Run `/clear` first to avoid context drift and costs of auto compaction.
 
 ```
 /hyperloop:hyperteam
 ```
 
-Hyperloop will:
+At startup, `/hyperloop:hyperteam` scans `plans/` for `*-prd.md` files and prompts you to select one:
+
+- If only one incomplete PRD exists, it confirms and auto-selects it.
+- If multiple incomplete PRDs exist, it presents a numbered list for you to choose from.
+- In-progress PRDs (those with an existing `team-state.json`) are flagged with a warning so you don't accidentally start a duplicate session.
+
+After PRD selection, hyperloop will:
 
 - Parse the PRD into a dependency-ordered task DAG
 - Show you the plan and wait for approval
@@ -95,6 +105,14 @@ Hyperloop will:
 If a session ends mid-run (quota exhaustion, network drop, etc.), just run `/hyperloop:hyperteam` again.
 It detects the existing `team-state.json`, shows you what's done and what's left, and picks up
 where it stopped.
+
+### Concurrent sessions
+
+Each `/hyperloop:hyperteam` session creates its own agent team via `TeamCreate`, which
+automatically scopes the native task list by team name. This means you can run multiple sessions
+in parallel — open separate Claude Code sessions, then run `/hyperloop:hyperteam` in each, and select a
+different PRD in each session. Sessions are fully isolated because each team has its own task list
+at `~/.claude/tasks/{team-name}/`.
 
 ## Architecture
 
