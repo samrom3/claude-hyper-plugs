@@ -7,6 +7,10 @@
 - [Overview](#overview)
 - [Installation](#installation)
 - [Skills](#skills)
+  - [adr-create](#adr-create)
+  - [adr-supersede](#adr-supersede)
+  - [adr-deprecate](#adr-deprecate)
+  - [adr-check](#adr-check)
 - [ADR Location Convention](#adr-location-convention)
 - [Compatibility](#compatibility)
 
@@ -33,6 +37,55 @@ claude plugin install adr-wizard@hyper-plugs
 | `adr-supersede` | `/adr-supersede` | Supersede an existing ADR, with bidirectional cross-references |
 | `adr-deprecate` | `/adr-deprecate` | Deprecate an ADR with a recorded reason                        |
 | `adr-check`     | `/adr-check`     | Validate all ADRs for structural integrity and index sync      |
+
+### adr-create<a name="adr-create"></a>
+
+Creates a new Nygard-style ADR file with auto-numbering, fills in the template, and updates the
+directory index.
+
+```
+/adr-create
+# or: just discuss an architectural decision in the conversation and the
+# model will offer to create an ADR automatically
+```
+
+The skill discovers your ADR directory from CLAUDE.md, finds the next available number, creates
+`NNN-<slug>.md`, and adds it to `README.md`. You fill in Context, Decision, and Consequences.
+
+### adr-supersede<a name="adr-supersede"></a>
+
+Creates a new ADR that replaces an existing one. Updates the old ADR's status to
+`Superseded by ADR-NNN` and adds a `Supersedes: ADR-MMM` field to the new one.
+
+```
+/adr-supersede
+# optionally supply the ADR number to supersede:
+/adr-supersede 003
+```
+
+### adr-deprecate<a name="adr-deprecate"></a>
+
+Marks an existing ADR as deprecated without creating a replacement. Records the deprecation
+reason in the file.
+
+```
+/adr-deprecate
+# optionally supply the ADR number:
+/adr-deprecate 005
+```
+
+### adr-check<a name="adr-check"></a>
+
+Validates all ADR directories for structural integrity, index sync, and cross-reference
+consistency. Also scans `git diff` for patterns that may indicate undocumented architectural
+decisions (advisory warnings only).
+
+```
+/adr-check
+```
+
+Exit result: **PASS** (all checks clear) or **FAIL** (with a remediation report listing exactly
+what needs fixing and in which files).
 
 ## ADR Location Convention<a name="adr-location-convention"></a>
 
