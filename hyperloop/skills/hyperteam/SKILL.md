@@ -24,11 +24,45 @@ Run these checks in order.
 
 > **IMPORTANT: Stop and surface each issue as you encounter it.**
 
-### Step 1 — Read settings and derive branch/slug
+### Step 1 — Scan `plans/` and select a PRD
 
-1. Read `.claude/settings.local.json` and extract `env.CLAUDE_CODE_TASK_LIST_ID` → this is `<branch>`.
-2. Derive `<slug>` from `<branch>` by stripping the leading `feat-` prefix if present.
-   - Example: `feat-hyperteam-skill` → `hyperteam-skill`
+1. List all files in `plans/` matching `*-prd.md`. These are the candidate PRDs.
+2. For each candidate `plans/<name>-prd.md`, determine its state:
+   - Check if `plans/<name>-team-state.json` exists.
+   - If absent → **unstarted**.
+   - If present, read `metadata.status`:
+     - `"running"` → **in-progress**
+     - `"complete"` → **complete**
+     - Any other value → treat as **in-progress**.
+3. Exclude **complete** PRDs from the selection list.
+4. If no incomplete PRDs remain:
+   > No incomplete PRDs found in `plans/`. Create a PRD first with `/prd`.
+
+   Stop here.
+5. Build the ordered selection list:
+   - Unstarted PRDs first, then in-progress PRDs.
+   - Within each group, sort by file modification time (most recent first).
+   - Format each entry as: `<n>. plans/<name>-prd.md`
+   - Append the following warning on the same line for every in-progress entry:
+     `⚠ This PRD has an in-flight hyperteam run. Ensure no other session is working on it before proceeding.`
+6. **Single PRD:** If exactly one incomplete PRD exists, use `AskUserQuestion` to confirm:
+   > Only one incomplete PRD found:
+   >
+   > `plans/<name>-prd.md` [warning if in-progress]
+   >
+   > Proceed with this PRD?
+
+   If the user confirms, select it. Otherwise, stop.
+7. **Multiple PRDs:** If more than one incomplete PRD exists, use `AskUserQuestion`:
+   > Multiple PRDs found. Choose one to run:
+   >
+   > <numbered selection list from step 5>
+
+   Wait for the user's choice.
+8. Derive `<branch>` from the selected filename: strip the `plans/` prefix and the `-prd.md` suffix.
+   - Example: `plans/feat-auth-flow-prd.md` → `feat-auth-flow`
+9. Derive `<slug>` from `<branch>` by stripping the leading `feat-` prefix if present.
+   - Example: `feat-auth-flow` → `auth-flow`
    - If `<branch>` does not start with `feat-`, use `<branch>` as `<slug>` unchanged.
 
 ### Step 2 — Verify git branch
