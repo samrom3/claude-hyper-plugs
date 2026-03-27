@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Agent discovery for Python pack agents (`hyperteam-py-builder`, `hyperteam-py-api-scaffolder`) —
   previously invisible due to subdirectory nesting (Claude Code only scans the top-level `agents/` directory)
 
-## [1.0.0] - 2026-03-01
+## [1.0.0] - 2026-03-23
 
 ### Added
 
