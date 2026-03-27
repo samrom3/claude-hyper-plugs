@@ -71,12 +71,11 @@ ______________________________________________________________________
    inheriting stale state.)
    After running, verify with `git branch --show-current` — the output must equal `<branch>`. If it doesn't, use
    `AskUserQuestion` to surface the error and stop.
-7. Update `.claude/settings.local.json`: set `env.CLAUDE_CODE_TASK_LIST_ID` to `<branch>`.
-8. Create the `plans/` directory if it does not exist:
+7. Create the `plans/` directory if it does not exist:
    ```
    mkdir -p plans
    ```
-9. Create a symlink so task files are accessible under `plans/<branch>`:
+8. Create a symlink so task files are accessible under `plans/<branch>`:
    ```
    ln -sf ~/.claude/tasks/<branch> plans/<branch>
    ```
@@ -146,8 +145,7 @@ ______________________________________________________________________
 ## Before Saving
 
 - [ ] Phase 0 completed: `<branch>` chosen (`feat-<slug>`), main synced from origin, branch checked out and verified,
-  `CLAUDE_CODE_TASK_LIST_ID` updated in `.claude/settings.local.json`, `plans/` directory exists, symlink
-  `plans/<branch>` → `~/.claude/tasks/<branch>` created and validated
+  `plans/` directory exists, symlink `plans/<branch>` → `~/.claude/tasks/<branch>` created and validated
 - [ ] Input mode detected: seedling (file path) or text description
 - [ ] `CLAUDE.md`, `docs/adrs/`, and project source directories searched for conflicts before generating
 - [ ] Phase 1 PRD includes all 9 sections (see `references/example-prd.md`), including Design Considerations and Open
