@@ -106,10 +106,11 @@ where it stopped.
 
 ### Concurrent sessions
 
-Each `/hyperloop:hyperteam` session scopes its own native task list at runtime. This means you can
-run multiple sessions in parallel — open separate Claude Code windows, run `/hyperloop:hyperteam`
-in each, and select a different PRD in each session. Sessions are fully isolated and do not
-interfere with each other.
+Each `/hyperloop:hyperteam` session creates its own agent team via `TeamCreate`, which
+automatically scopes the native task list by team name. This means you can run multiple sessions
+in parallel — open separate Claude Code windows, run `/hyperloop:hyperteam` in each, and select a
+different PRD in each session. Sessions are fully isolated because each team has its own task list
+at `~/.claude/tasks/{team-name}/`.
 
 ## Architecture
 

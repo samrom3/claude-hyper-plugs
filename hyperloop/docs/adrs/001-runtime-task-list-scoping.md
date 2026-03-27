@@ -1,4 +1,4 @@
-# ADR-001: Runtime Task List Scoping via `export`
+# ADR-001: Remove `CLAUDE_CODE_TASK_LIST_ID` from Persisted Config
 
 **Status:** Accepted
 
@@ -8,42 +8,41 @@ ______________________________________________________________________
 
 ## Context
 
-Claude Code's native task list is scoped by the `CLAUDE_CODE_TASK_LIST_ID` environment variable.
-When this variable is set, all `TaskCreate`, `TaskList`, and `TaskUpdate` calls operate on the
-named task list rather than the default one. This allows multiple independent task lists to
-coexist in a single installation.
-
 Hyperteam previously relied on the `/prd` skill to write `CLAUDE_CODE_TASK_LIST_ID` into
-`.claude/settings.local.json` under `env`. This approach has two significant problems:
+`.claude/settings.local.json` under `env`. This was intended to scope the native task list for
+the hyperteam session.
 
-1. **Concurrent runs clobber each other.** `.claude/settings.local.json` is a shared file on
-   disk. If a user runs `/prd` to create a second PRD while a hyperteam session is already
-   executing, the file is overwritten with the new branch name. The in-flight session then reads
-   the wrong task list ID on its next task operation.
+However, this approach was based on a misunderstanding of how Agent Teams scope their task lists.
+When `TeamCreate` is called with a `team_name`, Claude Code automatically:
 
-1. **Agent Teams do not get isolated environments.** Teammates spawned via `TeamCreate` inherit
-   the environment of the parent session at team creation time — they do not re-read
-   `settings.local.json` on each tool call. If the shared file is mutated after team creation,
-   teammate task operations silently target the wrong list.
+1. Creates the task list directory at `~/.claude/tasks/{team-name}/`.
+1. Sets `CLAUDE_CODE_TEAM_NAME` on all spawned teammates.
+1. Scopes all `TaskCreate`, `TaskList`, and `TaskUpdate` calls to `~/.claude/tasks/{team-name}/`.
 
-The root cause is that `.claude/settings.local.json` is a single file shared across all sessions
-and all time. It is not a suitable store for per-session, per-run configuration.
+See: [Agent Teams architecture](https://code.claude.com/docs/en/agent-teams#architecture).
+
+`CLAUDE_CODE_TASK_LIST_ID` is a **separate** mechanism for sharing a task list across non-team
+sessions (see [env vars](https://code.claude.com/docs/en/env-vars)). It does not influence team
+task list naming — the team name does.
+
+Persisting `CLAUDE_CODE_TASK_LIST_ID` in `.claude/settings.local.json` was therefore unnecessary
+for the team-based hyperteam workflow and introduced a false coupling between `/prd` and
+`/hyperteam`.
 
 ______________________________________________________________________
 
 ## Decision
 
-Hyperteam sets `CLAUDE_CODE_TASK_LIST_ID` via a runtime `export` statement immediately after
-PRD selection, instead of reading it from `.claude/settings.local.json`.
+Remove `CLAUDE_CODE_TASK_LIST_ID` from the hyperteam workflow entirely:
 
-The export happens in Phase 0 of the `/hyperteam` skill, after the user selects (or confirms)
-the PRD to execute and before any `TaskCreate` calls. Because the export is a shell environment
-mutation scoped to the current process, it affects only the running session and its spawned
-teammates — not any other concurrent session.
+- `/prd` no longer writes `CLAUDE_CODE_TASK_LIST_ID` to `.claude/settings.local.json`.
+- `/hyperteam` no longer reads or exports `CLAUDE_CODE_TASK_LIST_ID`.
+- Task list scoping is handled automatically by `TeamCreate` — hyperteam calls
+  `TeamCreate` with `team_name: "<branch>"`, which creates the task list at
+  `~/.claude/tasks/<branch>/`.
 
-The `/prd` skill's responsibility is reduced to creating the branch, the `plans/` directory, and
-the `plans/<branch>` → `~/.claude/tasks/<branch>` symlink. It no longer writes
-`CLAUDE_CODE_TASK_LIST_ID` to `.claude/settings.local.json`.
+The `/prd` skill continues to create the `plans/<branch>` → `~/.claude/tasks/<branch>` symlink,
+giving users local visibility into the task list from within the project directory.
 
 ______________________________________________________________________
 
@@ -51,22 +50,22 @@ ______________________________________________________________________
 
 **Positive:**
 
-- **Concurrent runs work correctly.** Each `/hyperteam` invocation in a separate Claude Code
-  session exports its own `CLAUDE_CODE_TASK_LIST_ID`. The sessions are fully isolated from each
-  other at the process level.
-- **No manual configuration required.** Users no longer need to ensure `settings.local.json` is
-  correct before running `/hyperteam`. The skill derives the correct value from the selected PRD
-  filename and sets it automatically.
+- **Concurrent runs work correctly.** Each `/hyperteam` session creates its own team via
+  `TeamCreate` with a unique team name. Task lists are automatically isolated by team name —
+  no shared config file to clobber.
+- **No manual configuration required.** Users don't need to set any environment variables.
+  `TeamCreate` handles scoping internally.
 - **`/prd` is decoupled from `/hyperteam`.** Users can create several PRDs upfront and run
   `/hyperteam` against any of them in any order, in any session.
+- **Correct mental model.** The architecture now reflects how Agent Teams actually work, rather
+  than layering an unrelated env var mechanism on top.
 
 **Neutral:**
 
-- The `plans/<branch>` symlink (created by `/prd`) is still required. Hyperteam verifies the
-  symlink exists after PRD selection and creates it if missing.
+- The `plans/<branch>` symlink (created by `/prd`) is still useful for local file visibility.
+  Hyperteam verifies the symlink exists after PRD selection and creates it if missing.
 
 **Negative / Trade-offs:**
 
-- The env var is no longer persisted between sessions. If a user resumes a hyperteam run in a
-  new terminal, the export must happen again — which it does, automatically, because Phase 0 runs
-  at the start of every `/hyperteam` invocation.
+- None identified. The previous `CLAUDE_CODE_TASK_LIST_ID` usage was unnecessary for team
+  workflows and its removal simplifies the architecture.

@@ -76,7 +76,7 @@ Run these checks in order.
    d. Verify with `git branch --show-current` — the output must equal `<branch>`. If it doesn't,
       use `AskUserQuestion` to surface the error and stop.
 
-### Step 3 — Verify symlink and scope task list
+### Step 3 — Verify symlink
 
 1. Verify the symlink `plans/<branch>` → `~/.claude/tasks/<branch>` exists:
    - Run `test -L plans/<branch>`.
@@ -86,12 +86,11 @@ Run these checks in order.
      ```
    - Verify: `readlink plans/<branch>` must return a path ending in `.claude/tasks/<branch>`.
      If it doesn't, use `AskUserQuestion` to surface the error and stop.
-2. Scope the session task list:
-   ```
-   export CLAUDE_CODE_TASK_LIST_ID=<branch>
-   ```
-   This scopes all `TaskCreate` / `TaskList` / `TaskUpdate` calls in this session to the
-   `<branch>` task list. Must run before Phase 2, Step 3.
+
+> **Note:** Task list scoping is handled automatically by `TeamCreate` in Phase 2, Step 2.
+> When `TeamCreate` is called with `team_name: "<branch>"`, it creates the task list at
+> `~/.claude/tasks/<branch>/` and sets `CLAUDE_CODE_TEAM_NAME` on all teammates. No manual
+> `export` of `CLAUDE_CODE_TASK_LIST_ID` is needed.
 
 ### Step 4 — Detect fresh start vs. resume
 
