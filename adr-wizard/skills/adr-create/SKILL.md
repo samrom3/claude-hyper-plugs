@@ -133,7 +133,7 @@ sections have substantive content.
 
 1. Construct filename: `<target_dir>/<NNNN>-<slug>.md` where NNNN is the zero-padded number and
    slug is the kebab-case title.
-2. Fill in the template from [`references/adr-template.md`](references/adr-template.md):
+2. Fill in the template from [`references/0000-adr-template.md`](references/0000-adr-template.md):
    - Replace `NNNN` with the zero-padded number.
    - Replace `Title` with `adr_title`.
    - Set `**Status:** Proposed` (new ADRs always start as Proposed unless the user specifies
