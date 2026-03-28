@@ -48,13 +48,27 @@ Run `gh pr create`:
 - `--title`: The first H1 heading in `plans/<branch>-prd.md` after the frontmatter, with any
   backtick-wrapped skill name stripped (use the plain prose title).
 - `--body`: A summary including:
-  - **Goals** section from the PRD (verbatim or abbreviated).
-  - Linked stories: list of `FEAT-*` and `DOC-*` task IDs with their titles.
-  - Standard footer:
-    ```
-    ---
-    🤖 Generated with [Claude Code](https://claude.com/claude-code)
-    ```
+  1. **Goals** section from the PRD (verbatim or abbreviated).
+  2. Linked stories: list of `FEAT-*` and `DOC-*` task IDs with their titles.
+  3. **Source issue close link** (if `metadata.source_issue` in `team-state.json` is non-null):
+     - Run `gh repo view --json nameWithOwner --jq '.nameWithOwner'` to get the current repo in
+       `owner/repo` format.
+     - If `owner/repo` in `source_issue` **matches** the current repo:
+       ```
+       Closes #N
+       ```
+     - If `owner/repo` in `source_issue` **does not match** (cross-repo):
+       ```
+       Closes https://github.com/owner/repo/issues/N
+       ```
+     - Place the `Closes` line **after** the linked stories section and **before** the `---` footer
+       separator, surrounded by blank lines.
+     - If `source_issue` is `null`, omit this section entirely — no regression.
+  4. Standard footer:
+     ```
+     ---
+     🤖 Generated with [Claude Code](https://claude.com/claude-code)
+     ```
 - `--base main` (or the repo's default branch).
 
 ______________________________________________________________________
