@@ -57,13 +57,25 @@ ______________________________________________________________________
    - Seedling mode: derive from the seedling document's title.
    - Text mode: derive from the feature description (e.g., "Account Rollover" → `account-rollover`).
 4. Generate `<branch>` as `feat-<slug>` (e.g., `feat-account-rollover`).
-5. **Sync main from origin:**
+5. **Detect GitHub issue reference:**
+   - Scan `$ARGUMENTS` for a URL matching the pattern `https://github.com/{owner}/{repo}/issues/{N}` (where `{N}` is a
+     positive integer).
+   - If one or more matches are found, take the **first** match and store it as `<source_issue>` in `owner/repo#N`
+     format (e.g., `samrom3/claude-hyper-plugs#13`).
+   - If no match is found, set `<source_issue>` to `null` — the metadata table will be omitted from the PRD.
+   - If `<source_issue>` is non-null, immediately run:
+     ```
+     gh issue edit <N> --repo <owner>/<repo> --add-assignee @me
+     ```
+     If this command fails (e.g., unauthenticated `gh`, insufficient permissions), print a visible warning line
+     (`⚠ Warning: could not assign issue — <error>`) but do **NOT** block PRD creation.
+6. **Sync main from origin:**
    1. Run `git fetch origin main` to pull latest remote state.
    2. Run `git log main..origin/main --oneline` — if any commits are listed, main is behind; use `AskUserQuestion` to
       surface this to the user and **stop** until they confirm how to proceed (typically `git merge origin/main` or
       `git rebase origin/main`).
    3. Only proceed once `main` is up to date with `origin/main`.
-6. **Create and checkout branch from main:**
+7. **Create and checkout branch from main:**
    ```
    git checkout -B <branch> main
    ```
@@ -71,11 +83,11 @@ ______________________________________________________________________
    inheriting stale state.)
    After running, verify with `git branch --show-current` — the output must equal `<branch>`. If it doesn't, use
    `AskUserQuestion` to surface the error and stop.
-7. Create the `plans/` directory if it does not exist:
+8. Create the `plans/` directory if it does not exist:
    ```
    mkdir -p plans
    ```
-8. Create a symlink so task files are accessible under `plans/<branch>`:
+9. Create a symlink so task files are accessible under `plans/<branch>`:
    ```
    ln -sf ~/.claude/tasks/<branch> plans/<branch>
    ```
@@ -118,6 +130,26 @@ ______________________________________________________________________
    subsequent stories implement the business logic against those stable contracts via TDD.
 
 6. Save to `plans/<branch>-prd.md`.
+   - If `<source_issue>` is non-null, write a metadata table **immediately after the H1 heading** and **before
+     section `## 1.`**, using exactly this format:
+
+     ```markdown
+     # <Title>
+
+     | Field        | Value        |
+     | ------------ | ------------ |
+     | Source Issue | owner/repo#N |
+
+     ## 1. Introduction/Overview
+     ```
+
+   - If `<source_issue>` is null, omit the metadata table entirely — the H1 heading is followed directly by
+     `## 1. Introduction/Overview` with no table in between.
+
+   > **Reading note for agents and future readers:** The metadata table, if present, appears **immediately after
+   > the H1 heading** and **before the first `##` section heading**. Parsers should locate the H1, then scan
+   > forward for a `| Source Issue |` row before encountering a `##` line; if none is found, `source_issue` is
+   > `null`.
 
 ### Phase 2: Design refinement (questions + expand open questions)
 
@@ -146,10 +178,14 @@ ______________________________________________________________________
 
 - [ ] Phase 0 completed: `<branch>` chosen (`feat-<slug>`), main synced from origin, branch checked out and verified,
   `plans/` directory exists, symlink `plans/<branch>` → `~/.claude/tasks/<branch>` created and validated
+- [ ] GitHub issue URL scanned from `$ARGUMENTS`: `<source_issue>` set to `owner/repo#N` if found, `null` otherwise;
+  if non-null, `gh issue edit` assignment attempted (warning printed on failure, PRD creation not blocked)
 - [ ] Input mode detected: seedling (file path) or text description
 - [ ] `CLAUDE.md`, `docs/adrs/`, and project source directories searched for conflicts before generating
 - [ ] Phase 1 PRD includes all 9 sections (see `references/example-prd.md`), including Design Considerations and Open
   Questions
+- [ ] If `<source_issue>` is non-null: metadata table present immediately after H1 heading and before `## 1.`; if null:
+  no metadata table in PRD
 - [ ] Seedling mode: author's structure and intent preserved; only gaps/ambiguities questioned
 - [ ] User input gathered in each phase as needed
 - [ ] Incorporated user's answers into the PRD after each refinement phase

@@ -2,6 +2,31 @@
 
 # Notification Delivery
 
+> **[Guidance — Metadata table]** If `/prd` was invoked with a GitHub issue URL in its arguments (e.g.
+> `/prd https://github.com/owner/repo/issues/42 my feature desc`), a metadata table is written **immediately
+> after the H1 heading** and **before `## 1.`**, as shown below. If no issue URL was provided, omit the table
+> entirely — the H1 heading is followed directly by `## 1.`.
+>
+> **Table-present example** (issue URL was detected):
+>
+> ```markdown
+> # Notification Delivery
+>
+> | Field        | Value                           |
+> | ------------ | ------------------------------- |
+> | Source Issue | samrom3/claude-hyper-plugs#42   |
+>
+> ## 1. Introduction/Overview
+> ```
+>
+> **Table-absent example** (no issue URL — default):
+>
+> ```markdown
+> # Notification Delivery
+>
+> ## 1. Introduction/Overview
+> ```
+
 ## 1. Introduction/Overview
 
 > **[Guidance]** Describe the problem being solved and why it matters to the project. Keep it concise.
