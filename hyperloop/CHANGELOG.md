@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `/prd` accepts one or more GitHub issue URLs anywhere in its arguments. When detected, hyperloop:
+  - Assigns each issue to the authenticated `gh` user immediately (`gh issue edit --add-assignee @me`).
+    On failure, a visible warning is printed but PRD creation is not blocked.
+  - Writes one `| Source Issue | owner/repo#N |` metadata table row per issue immediately after
+    the PRD's H1 heading and before `## 1.`, so all issue references travel with the PRD.
+  - Stores `metadata.source_issues` (array) in `team-state.json` during Phase 1 (parsed from the
+    PRD metadata table); `null` when no issues were provided. This field is immutable after first write.
+  - Appends a `Closes #N` (same-repo) or `Closes <URL>` (cross-repo) line per issue to the PR
+    body in Phase 4, so all linked issues auto-close on merge.
+- ADR-002: Two-location `source_issues` storage — documents the decision to store issue references
+  in both the PRD metadata table (for human visibility) and `team-state.json` (as the authoritative
+  runtime value), along with the canonical metadata table format spec and the array-type rationale.
+
+### Changed
+
+- `metadata.source_issue` (singular string) renamed to `metadata.source_issues` (string array) in
+  `team-state.json`. A single-issue PRD produces a one-element array; `null` is preserved for
+  no-issue PRDs.
+- Phase 1 (`phase-1-fresh-start.md`) now collects all `| Source Issue |` rows from the PRD metadata
+  table and populates `metadata.source_issues` in `team-state.json`. Assignment verification runs
+  for each issue.
+- Phase 4 (`phase-4-completion.md`) PR body now emits one `Closes` line per entry in
+  `metadata.source_issues` when the array is non-null.
+- `references/team-state-schema.md` documents `source_issues` as a formally specified optional
+  field (`string[] | null`) in the `metadata` block.
+- `references/example-prd.md` guidance updated to show both the table-present and table-absent
+  PRD states.
+
 ## [1.2.0] - 2026-03-27
 
 ### Changed
