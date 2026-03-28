@@ -2,6 +2,7 @@
 name: adr-check
 description: "Validate that all Architecture Decision Records (ADRs) are in sync with the codebase — checks ADR structure, status fields, index consistency, and cross-references. Surfaces git-diff-based warnings for undocumented architectural decisions. Invocable via /adr-check or by gate agents performing ADR validation."
 user-invocable: true
+argument-hint: "[optional: path/to/NNNN-adr-file.md]"
 ---
 
 # adr-check
@@ -12,15 +13,23 @@ advisory diff-based warnings.
 
 ---
 
-## Step 1 — Discover ADR directories
+## Step 1 — Determine mode and discover inputs
 
-1. Read the project's `CLAUDE.md`.
-2. Search for any heading containing `ADR Locations` (case-insensitive, any heading level).
-3. If found, collect each bullet list item as a relative path, stripping inline `# comments`.
-   Store as `adr_dirs`.
-4. If not found, fall back: scan the repository root for `docs/adrs/`, `decisions/`, and
-   `architecture/decisions/`. Use whichever exist.
-5. If `adr_dirs` is empty after both methods, output:
+1. Inspect the skill argument (the text following `/adr-check`, if any).
+   - If the argument is a path to a `.md` file (e.g., `/adr-check docs/adrs/0001-foo.md`):
+     - Set `scoped_mode = true` and `scoped_file = <argument path>`.
+     - Skip the directory discovery steps below. Proceed directly to Step 2 using only
+       `scoped_file` as the target. Check 2.2, Check 2.3, and Step 4 are skipped entirely.
+   - Otherwise: set `scoped_mode = false` and continue with directory discovery.
+
+2. *(whole-directory mode only)* Read the project's `CLAUDE.md`.
+3. *(whole-directory mode only)* Search for any heading containing `ADR Locations`
+   (case-insensitive, any heading level).
+4. *(whole-directory mode only)* If found, collect each bullet list item as a relative path,
+   stripping inline `# comments`. Store as `adr_dirs`.
+5. *(whole-directory mode only)* If not found, fall back: scan the repository root for
+   `docs/adrs/`, `decisions/`, and `architecture/decisions/`. Use whichever exist.
+6. *(whole-directory mode only)* If `adr_dirs` is empty after both methods, output:
    ```
    ADR Check Report
    ================
@@ -51,8 +60,16 @@ For each directory in `adr_dirs`, run all checks below. Track failures as a list
    d. **Consequences present:** The file contains a `## Consequences` section. Content may be
       brief. If entirely absent, add issue:
       `[ADR-NNNN] ## Consequences section is missing`
+   e. **Consequences quality (style check):** Using model judgment — not keyword matching —
+      assess whether the `## Consequences` section contains at least one genuinely adverse
+      outcome. Qualifying examples: a known risk, a trade-off, a migration cost, an increase in
+      complexity, a performance regression, reduced flexibility, or an explicit statement of what
+      is being given up. If no such adverse consequence is found, add a **style warning** (not a
+      structural issue):
+      `[ADR-NNNN] Consequences section contains no clearly adverse consequence or trade-off — consider adding one for credibility`
+      Style warnings do not affect the pass/fail result and are reported separately (see Step 3).
 
-### Check 2.2 — Index sync
+### Check 2.2 — Index sync *(whole-directory mode only)*
 
 1. Check if `<dir>/README.md` exists.
    - If it does not exist, add issue: `README.md index is missing from <dir>`
@@ -63,7 +80,7 @@ For each directory in `adr_dirs`, run all checks below. Track failures as a list
 4. For each entry in the README.md table, check the referenced ADR file exists. If not, add
    issue: `[index entry] README.md references <filename> but file does not exist (orphaned entry)`
 
-### Check 2.3 — Cross-reference integrity
+### Check 2.3 — Cross-reference integrity *(whole-directory mode only)*
 
 1. For each ADR file with a status of `Superseded by ADR-NNNN`:
    a. Verify `NNNN-*.md` exists in the directory. If not, add issue:
@@ -79,9 +96,15 @@ For each directory in `adr_dirs`, run all checks below. Track failures as a list
 
 ## Step 3 — Build the validation report
 
-For each directory in `adr_dirs`:
+**Whole-directory mode:** For each directory in `adr_dirs`:
 - If `issues` is empty: status = PASS
 - If `issues` is non-empty: status = FAIL
+
+**Scoped mode:** Evaluate only `scoped_file`. If structural issues (2.1a–2.1d) are present,
+status = FAIL. Style warnings (2.1e) do not affect status.
+
+Separate the collected items from Check 2.1e into a `style_warnings` list. These are NOT counted
+as issues and do NOT affect status.
 
 Output:
 
@@ -89,7 +112,7 @@ Output:
 ADR Check Report
 ================
 
-Directory: <path>
+Directory: <path>          ← whole-directory mode
   Status: PASS | FAIL
   Issues:
     - <issue 1>
@@ -100,15 +123,27 @@ Directory: <path>
   Status: PASS
   Issues: none
 
+File: <path>               ← scoped mode
+  Status: PASS | FAIL
+  Issues:
+    - <issue 1>
+    ...
+
+Style Warnings (advisory only — not gate-blocking)
+===================================================
+  - [ADR-NNNN] <style warning message>
+
 Overall: PASS | FAIL
 ```
 
-If any directory has status FAIL, `Overall` is FAIL. Otherwise PASS.
+The `Style Warnings` section appears only when `style_warnings` is non-empty; omit it otherwise.
+
+If any directory (or the scoped file) has status FAIL, `Overall` is FAIL. Otherwise PASS.
 
 On FAIL, append a `Remediation` section listing each issue with the specific file and the action
 needed to fix it.
 
-## Step 4 — Diff-based warnings (advisory only)
+## Step 4 — Diff-based warnings *(whole-directory mode only; skip in scoped mode)*
 
 1. Run `git diff HEAD` to capture staged + unstaged changes.
 2. Scan the diff output for these patterns:
@@ -134,5 +169,6 @@ needed to fix it.
 
 Print the full report. The overall result determines the exit signal to callers:
 
-- **PASS** (with or without warnings): success. Gate consumers should continue.
+- **PASS** (with or without diff-based warnings or style warnings): success. Gate consumers
+  should continue.
 - **FAIL**: failure. Gate consumers should block and present the remediation steps to the user.
