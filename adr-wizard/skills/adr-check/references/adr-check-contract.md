@@ -33,18 +33,28 @@ validate.
 
 ### 1.2 Scoped Mode
 
-When the skill is invoked with a file path argument (e.g., `/adr-check docs/adrs/0001-foo.md`),
-it enters **scoped mode**:
+When invoked with an argument, the skill enters **scoped mode**. The argument determines the
+target scope — three sub-modes are supported:
 
-- Only the specified file is validated.
-- Only structural checks (Section 2.1) and style checks (Section 2.1e) run against that file.
-- Section 2.2 (Index Sync) and Section 2.3 (Cross-Reference Integrity) are skipped.
-- Section 4 (Diff-Based Warnings) is skipped entirely.
-- The report scope is limited to the single file rather than a directory.
+- **Scoped (file):** The argument is a path to a single `.md` file
+  (e.g., `/adr-check docs/adrs/0001-foo.md`). Only that file is validated. Runs Section 2.1
+  (structural) and Section 2.1e (style check) only. Sections 2.2, 2.3, and 4 are skipped.
 
-Scoped mode is designed for use by lifecycle skills (`adr-create`, `adr-supersede`,
-`adr-deprecate`) that need to validate only the file they just wrote, without noise from
-unrelated ADRs or diff patterns.
+- **Scoped (directory):** The argument is a path to a directory
+  (e.g., `/adr-check docs/adrs/`). All ADR files in that directory are validated. Runs
+  Sections 2.1, 2.1e, 2.2, and 2.3 for that directory only. Section 4 is skipped.
+
+- **Scoped (query):** The argument is a natural-language description
+  (e.g., `/adr-check "validate only ADRs impacting the Zip Event management components"`).
+  The skill uses model judgment to identify which ADR files across all discovered directories
+  match the query. Runs Section 2.1 and Section 2.1e against each matched file. Sections 2.2,
+  2.3, and 4 are skipped.
+
+All scoped sub-modes skip Section 4 (Diff-Based Warnings). Section 4 is exclusive to Global mode.
+
+Scoped mode is designed for intentional, targeted validation: lifecycle skills use
+`Scoped (file)` for post-write validation; users and tools can use `Scoped (directory)` or
+`Scoped (query)` to narrow a check to a relevant subset without diff-based noise.
 
 ---
 
@@ -105,19 +115,25 @@ For ADRs with a `Supersedes: ADR-NNNN` field:
 
 ## 3. Output — Validation Report
 
-The skill MUST output a structured report in the following format:
+The skill MUST output a structured report. The format is identical regardless of mode; the
+`Mode` and `ADRs` header rows provide context for all rows that follow.
 
 ```
 ADR Check Report
 ================
 
-Directory: <path>
+Mode:    Global | Scoped (file) | Scoped (directory) | Scoped (query)
+Target:  <path, directory path, or natural-language query>
+ADRs:    <comma-separated list of all ADR filenames validated, e.g. "0001-foo.md, 0002-bar.md">
+
+Results
+-------
+<path/to/directory-or-file>:
   Status: PASS | FAIL
   Issues:
     - [ADR-NNNN] <description of issue>
-    - ...
 
-Directory: <path>
+<path/to/next-item>:
   Status: PASS
   Issues: none
 
@@ -125,18 +141,26 @@ Style Warnings (advisory only — not gate-blocking)
 ===================================================
   - [ADR-NNNN] <style warning message>
 
+Diff-Based Warnings (advisory only — not gate-blocking)
+========================================================
+  - [WARNING] <message>
+
 Overall: PASS | FAIL
 ```
+
+**Results grouping:**
+- **Global** and **Scoped (directory):** Group results by directory path.
+- **Scoped (file)** and **Scoped (query):** List each validated file as its own result entry.
+
+**Conditional sections:**
+- `Style Warnings` — appears only when Section 2.1e emits at least one warning; omitted otherwise.
+- `Diff-Based Warnings` — appears only in Global mode when Section 4 emits warnings; omitted in
+  all scoped sub-modes and when no diff warnings are found.
 
 On failure, each issue entry MUST include:
 - Which ADR file is affected (by number and filename)
 - What check failed
 - A specific remediation step (e.g., "Add a non-empty ## Context section to docs/adrs/003-foo.md")
-
-The `Style Warnings` section appears only when style checks (Section 2.1e) emit at least one
-warning. It is omitted entirely when no style warnings are found. Style warnings are distinct from
-`Diff-Based Warnings` (Section 4): style warnings reflect the quality of an individual ADR's
-content; diff-based warnings reflect patterns in the current git diff.
 
 ---
 
@@ -169,16 +193,17 @@ If no diff-based warnings are found, this section is omitted from the report.
 
 ## 5. Pass / Fail Semantics
 
-| Condition | Result |
-|-----------|--------|
-| All structural checks pass for all directories | **PASS** |
-| Any structural check fails in any directory | **FAIL** |
-| No ADR directories found | **PASS** (warning emitted) |
-| Diff-based warnings present | **PASS** (warnings are informational) |
-| Style warnings present (whole-directory mode) | **PASS** (warnings are informational) |
-| Scoped mode — structural check fails | **FAIL** |
-| Scoped mode — style warning emitted | **PASS** (warning is informational) |
-| Scoped mode — diff-based warnings | Skipped (not evaluated) |
+| Mode | Condition | Result |
+|------|-----------|--------|
+| Global | All structural checks pass | **PASS** |
+| Global | Any structural check fails | **FAIL** |
+| Global | No ADR directories found | **PASS** (warning emitted) |
+| Global | Diff-based warnings present | **PASS** (informational only) |
+| Global | Style warnings present | **PASS** (informational only) |
+| Scoped (any) | Structural check fails on target | **FAIL** |
+| Scoped (any) | Style warning emitted | **PASS** (informational only) |
+| Scoped (any) | Diff-based warnings | Skipped — not evaluated |
+| Scoped (query) | No ADRs match the query | **PASS** (advisory warning emitted) |
 
 Gate consumers MUST treat a **FAIL** result as a gate-blocking failure. Gate consumers MUST
 treat diff-based warnings as informational only — they must be logged in the progress file and
@@ -188,21 +213,26 @@ presented to the user, but they do not block the gate.
 
 ## 6. Invocation
 
-- **User-invocable (whole-directory mode):** `/adr-check`
-  Validates all ADR directories discovered via Section 1.1. Runs all checks (Sections 2.1–2.3
-  and Section 4).
+- **Global mode:** `/adr-check`
+  No argument. Validates all ADR directories discovered via Section 1.1. Runs all checks
+  (Sections 2.1–2.3 and Section 4).
 
-- **User-invocable (scoped mode):** `/adr-check path/to/NNNN-adr-file.md`
-  Validates only the specified ADR file. Runs structural checks (Section 2.1) and style checks
-  (Section 2.1e) only. Skips index sync (Section 2.2), cross-reference checks (Section 2.3),
-  and diff-based warnings (Section 4).
+- **Scoped (file):** `/adr-check path/to/NNNN-adr-file.md`
+  Argument is a `.md` file path. Validates only that file. Runs Sections 2.1 and 2.1e; skips
+  2.2, 2.3, and 4.
 
-- **Model-invocable:** The skill description includes phrases matching ADR validation context
-  so the model can auto-trigger it when relevant.
+- **Scoped (directory):** `/adr-check path/to/adrs/`
+  Argument is a directory path. Validates all ADR files in that directory. Runs Sections 2.1,
+  2.1e, 2.2, and 2.3 for that directory only; skips Section 4.
 
-- **Lifecycle skill invocation (scoped):** Lifecycle skills (`adr-create`, `adr-supersede`,
-  `adr-deprecate`) invoke the skill in scoped mode against the file they just wrote:
-  `adr-check <path>`. This validates only the newly written ADR without noise from other files.
+- **Scoped (query):** `/adr-check "natural language description"`
+  Argument is a quoted or unquoted natural-language string that is not a resolvable path. The
+  model identifies matching ADRs and runs Sections 2.1 and 2.1e against them; skips 2.2, 2.3,
+  and 4.
 
-- **Gate invocation:** The gate template calls the skill by name in whole-directory mode. If the
-  skill is not installed, the gate falls back to basic directory scanning (see FR-011 in the PRD).
+- **Lifecycle skill invocation:** Lifecycle skills (`adr-create`, `adr-supersede`,
+  `adr-deprecate`) invoke `Scoped (file)` mode against the file they just wrote. This validates
+  only the newly written ADR without noise from other files or diff patterns.
+
+- **Gate invocation:** The gate template calls the skill in Global mode. If the skill is not
+  installed, the gate falls back to basic directory scanning (see FR-011 in the PRD).
