@@ -1,6 +1,6 @@
 ---
 name: adr-deprecate
-description: "Deprecate an existing Architecture Decision Record (ADR) that is no longer relevant, recording the reason while preserving history. Use when an architectural decision, design choice, or technical decision is obsolete or no longer applicable. Invocable via /adr-deprecate <ADR number> <reason for deprecation>."
+description: "This skill should be used when the user asks to 'deprecate an ADR', 'mark an ADR as obsolete', 'retire an architectural decision', 'flag an ADR as no longer applicable', or when an existing architectural decision is no longer relevant and should be marked as deprecated while preserving history."
 argument-hint: "ADR number to deprecate and why (e.g., '5 No longer applicable after migration to microservices')"
 user-invocable: true
 ---

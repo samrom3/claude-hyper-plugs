@@ -1,6 +1,6 @@
 ---
 name: adr-create
-description: "Create a new Architecture Decision Record (ADR) in the correct directory with auto-numbering and index updates. Triggers when the user or model discusses an architectural decision, design choice, technical decision, or needs to document a new architectural pattern, technology selection, or system design choice. Invocable via /adr-create <decision summary>."
+description: "This skill should be used when the user asks to 'create an ADR', 'document an architectural decision', 'record a design decision', 'write an architecture decision record', or when the model identifies an architectural decision in context that warrants formal documentation. Evaluates decision worthiness before authoring and guides section drafting."
 argument-hint: "Brief description of the architectural decision (e.g., 'Use PostgreSQL for primary storage')"
 user-invocable: true
 ---
@@ -16,7 +16,7 @@ directory's README.md index.
 
 ### Phase A — Silent evaluation (always runs first)
 
-Using your domain knowledge and the full conversation context, assess the decision across these
+Using domain knowledge and the full conversation context, assess the decision across these
 axes before engaging the user at all:
 
 | Axis | What to assess |
@@ -27,7 +27,7 @@ axes before engaging the user at all:
 | **Tradeoffs** | Does the conversation context already surface what was given up? |
 | **Existing ADRs** | Does this decision extend, contradict, or supersede a prior architectural choice? |
 
-**If Phase A gives you a clear verdict**, act on it directly — no debate needed:
+**If Phase A yields a clear verdict**, act on it directly — no debate needed:
 
 - **Clear yes** (cross-cutting, meaningful alternatives existed, non-trivial reversal cost, or
   intersects an existing ADR): proceed to Step 1 without engaging the user.
@@ -42,9 +42,9 @@ context, or the decision boundaries are unclear — proceed to Phase B.
 
 ### Phase B — Adversarial debate (only when Phase A is inconclusive)
 
-Engage the user to extract the information Phase A could not resolve. The debate loads your
-context with the substance Steps 4–5 will need; it also surfaces the decision's true shape,
-which may not match the user's original framing.
+Engage the user to extract the information Phase A could not resolve. The debate loads the
+agent's context with the substance Steps 4–5 will need; it also surfaces the decision's true
+shape, which may not match the user's original framing.
 
 **Your posture is adversarial-constructive.** Argue against the ADR's necessity — or against the
 framing — until the picture is clear. State challenges directly; do not soften them into
@@ -148,7 +148,7 @@ characters replaced with hyphens.
 
 The skill is responsible for authoring every section of the ADR — do not leave template
 placeholders for the user. Infer content from the conversation context, codebase state, and
-`decision_summary`. When you lack enough information to write a section confidently, use
+`decision_summary`. When information is insufficient to write a section confidently, use
 `AskUserQuestion` to interview the user before proceeding.
 
 For each section, gather information as follows:
@@ -196,12 +196,12 @@ decision. Include:
 - Any follow-up work this decision creates
 - Migration or compatibility implications, if applicable
 
-If you cannot infer consequences from context, ask:
+If consequences cannot be inferred from context, ask:
 > What are the main benefits and trade-offs of this decision? Any follow-up work it creates?
 
 ### Interview flow
 
-Batch your questions — if you need clarity on multiple sections, ask them together in a single
+Batch questions — if clarity is needed on multiple sections, ask them together in a single
 `AskUserQuestion` call rather than one at a time. Proceed to file creation only after all
 sections have substantive content.
 

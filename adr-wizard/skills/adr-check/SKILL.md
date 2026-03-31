@@ -1,6 +1,6 @@
 ---
 name: adr-check
-description: "Validate Architecture Decision Records (ADRs) for structural integrity, index sync, cross-references, and advisory style quality. Supports Global mode (all ADR directories + diff-based warnings), Scoped mode (single file, directory, or natural-language query — no diff noise), and future Diff mode. Invocable via /adr-check or by lifecycle skills and gate agents."
+description: "This skill should be used when the user asks to 'validate ADRs', 'check ADR structure', 'run adr-check', 'check for undocumented decisions', or when lifecycle skills and gate agents need to validate ADR files. Supports Global mode (all discovered ADR directories, including diff-based warnings), Scoped mode (single file, directory, or natural-language query — no diff noise), and future Diff mode."
 user-invocable: true
 argument-hint: "[optional: path/to/NNNN-adr-file.md | path/to/adrs/ | natural language query]"
 ---
@@ -181,3 +181,7 @@ Print the full report. The overall result determines the exit signal to callers:
 - **PASS** (with or without diff-based warnings or style warnings): success. Gate consumers
   should continue.
 - **FAIL**: failure. Gate consumers should block and present the remediation steps to the user.
+
+## Additional Resources
+
+- **`references/adr-check-contract.md`** — Full contract specification: discovery rules, validation checks (2.1–2.3, 2.1e), report format, pass/fail semantics, and invocation modes.
