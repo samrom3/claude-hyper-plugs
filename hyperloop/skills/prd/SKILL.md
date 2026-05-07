@@ -8,40 +8,26 @@ disable-model-invocation: true
 
 # PRD Generator
 
-Create detailed Product Requirements Documents that are clear, actionable, and suitable for implementation by junior
-developers or AI agents.
+Creates detailed, actionable PRDs suitable for implementation by junior devs or AI agents.
 
 ______________________________________________________________________
 
 ## Critical Review Mandate
 
-> **Your primary job is to _critique_ the requirements you receive — not simply agree with them.** The user is paying
-> for your judgement, not your compliance. An agent that rubber-stamps every input is worse than useless: it lets
-> conflicting requirements slip through and causes implementing agents to get stuck with irreconcilable constraints.
+**Primary job: critique requirements, not agree with them.** Before accepting any requirement, actively search for:
 
-Before accepting any requirement at face value, actively search for and surface:
+1. **Explicit conflicts** — contradictory requirements, mutually exclusive acceptance criteria.
+2. **Implicit conflicts against existing codebase** — contradictions with existing ADRs, `CLAUDE.md` patterns, current domain model, or `CONTRIBUTING.md` conventions. Read `CLAUDE.md`, scan `docs/adrs/`, search project source dirs before accepting any requirement.
+   _(Full ADR scan intentional: PRD work is design work.)_
+3. **Ambiguity-hidden conflicts** — vague requirements that seem compatible but force contradictory impl choices.
 
-1. **Explicit conflicts within the input** — contradictory requirements, goals that work against each other, acceptance
-   criteria that are mutually exclusive.
-2. **Implicit conflicts against the existing codebase** — requirements that contradict existing ADRs, break established
-   patterns in `CLAUDE.md`, conflict with the current domain model in the project source tree, or violate conventions in
-   `CONTRIBUTING.md`. Read `CLAUDE.md`, scan `docs/adrs/`, and search the project source directories (as identified in
-   `CLAUDE.md`) before accepting any requirement.
-   _(Full ADR scan is intentional here: PRD work is design work and warrants full architectural context.)_
-3. **Ambiguities that hide conflicts** — vague requirements that seem compatible but would force contradictory
-   implementation choices once an agent tries to write code.
+Conflicts detected → **push back**: use `AskUserQuestion` to state conflict, why it matters, propose concrete alternatives, block until user resolves.
 
-If ambiguities are hiding conflicts, interview the user instead with clarifying questions via `AskUserQuestion` to
-disambiguate and reveal the missing requirements and/or new conflicts.
+Ambiguities hiding conflicts → interview user with clarifying questions via `AskUserQuestion`.
 
-When conflicts are detected, **push back** — use `AskUserQuestion` to clearly state the conflict, why it matters, and
-propose concrete alternatives, blocking until the user resolves it.
+**Do not proceed to next phase until all ambiguities and conflicts resolved.**
 
-**Do not proceed to the next phase until all ambiguities and conflicts are resolved.**
-
-> **Seedling philosophy:** A seedling PRD or external document source such as a GitHub or JIRA issue is the operator's
-> intent distilled into a draft document — it gives the skill a head start with more details. But a seedling is not sacred:
-> challenge them just as you would any other input.
+> **Seedling philosophy:** Seedling PRD/external doc gives head start — but is not sacred. Challenge seedlings just as any other input.
 
 ______________________________________________________________________
 
@@ -49,89 +35,66 @@ ______________________________________________________________________
 
 ### Phase 0: Environment Setup
 
-1. Read `$ARGUMENTS` (the text typed after `/prd`). If empty, use `AskUserQuestion` to gather input.
+1. Read `$ARGUMENTS`. Empty → use `AskUserQuestion` to gather input.
 2. **Detect input type:**
-   - If `$ARGUMENTS` is a path to an existing `.md` file → **seedling mode** (use the file as a baseline draft).
+   - `$ARGUMENTS` is path to existing `.md` file → **seedling mode** (use file as baseline draft).
    - Otherwise → **text description mode** (generate from scratch).
-3. Derive `<slug>` as a short, lowercase-kebab-case label:
-   - Seedling mode: derive from the seedling document's title.
-   - Text mode: derive from the feature description (e.g., "Account Rollover" → `account-rollover`).
+3. Derive `<slug>` as short lowercase-kebab-case label:
+   - Seedling: from seedling document title.
+   - Text: from feature description (e.g., "Account Rollover" → `account-rollover`).
 4. Generate `<branch>` as `feat-<slug>` (e.g., `feat-account-rollover`).
 5. **Detect GitHub issue references:**
-   - Scan `$ARGUMENTS` for **all** URLs matching the pattern `https://github.com/{owner}/{repo}/issues/{N}` (where
-     `{N}` is a positive integer).
-   - If one or more matches are found, collect all of them as `<source_issues>`, a list of `owner/repo#N` references
-     (e.g., `["samrom3/claude-hyper-plugs#13"]`).
-   - If no match is found, set `<source_issues>` to `null` — the metadata table will be omitted from the PRD.
-   - For each issue in `<source_issues>`, immediately run:
+   - Scan `$ARGUMENTS` for all URLs matching `https://github.com/{owner}/{repo}/issues/{N}`.
+   - Matches found → collect as `<source_issues>`: list of `owner/repo#N` references.
+   - No match → set `<source_issues>` to `null` (metadata table omitted from PRD).
+   - For each issue in `<source_issues>`, run:
      ```
      gh issue edit <N> --repo <owner>/<repo> --add-assignee @me
      ```
-     If this command fails (e.g., unauthenticated `gh`, insufficient permissions), print a visible warning line
-     (`⚠ Warning: could not assign issue — <error>`) but do **NOT** block PRD creation.
+     Fails → print `⚠ Warning: could not assign issue — <error>` but do **NOT** block PRD creation.
 6. **Sync main from origin:**
-   1. Run `git fetch origin main` to pull latest remote state.
-   2. Run `git log main..origin/main --oneline` — if any commits are listed, main is behind; use `AskUserQuestion` to
-      surface this to the user and **stop** until they confirm how to proceed (typically `git merge origin/main` or
-      `git rebase origin/main`).
-   3. Only proceed once `main` is up to date with `origin/main`.
-7. **Create and checkout branch from main:**
+   1. Run `git fetch origin main`.
+   2. Run `git log main..origin/main --oneline` — commits listed → main is behind. Use `AskUserQuestion` to surface, **stop** until user confirms how to proceed.
+   3. Proceed only once `main` up to date with `origin/main`.
+7. **Create and checkout branch:**
    ```
    git checkout -B <branch> main
    ```
-   (If the branch already exists, `-B` resets it to `main` — this is intentional when re-running `/prd` to avoid
-   inheriting stale state.)
-   After running, verify with `git branch --show-current` — the output must equal `<branch>`. If it doesn't, use
-   `AskUserQuestion` to surface the error and stop.
-8. Create the `plans/` directory if it does not exist:
+   Verify with `git branch --show-current` — must equal `<branch>`. Mismatch → `AskUserQuestion` and stop.
+8. Create `plans/` dir if absent:
    ```
    mkdir -p plans
    ```
-9. Create a symlink so task files are accessible under `plans/<branch>`:
+9. Create symlink:
    ```
    ln -sf ~/.claude/tasks/<branch> plans/<branch>
    ```
-   After running, verify the symlink:
-   1. Confirm `plans/<branch>` exists and is a symlink: `test -L plans/<branch>`
-   2. Confirm `readlink plans/<branch>` returns a path ending in `.claude/tasks/<branch>`.
-   3. If either check fails, use `AskUserQuestion` to surface the error and stop — do not proceed to Phase 1.
+   Verify: `test -L plans/<branch>` passes, `readlink plans/<branch>` returns path ending in `.claude/tasks/<branch>`. Either check fails → `AskUserQuestion` and stop.
 
 ### Phase 1: Draft PRD (baseline)
 
-1. If `plans/<branch>-prd.md` already exists, move it to `plans/archive/<branch>-prd.md` before continuing.
+1. If `plans/<branch>-prd.md` exists, move to `plans/archive/<branch>-prd.md` before continuing.
 
-2. **Before generating anything:** Read `CLAUDE.md`, scan `docs/adrs/`, and search the project source directories (as
-   identified in `CLAUDE.md`) for existing code related to the feature. Identify any conflicts between what is being
-   requested and what already exists. This research is mandatory in both modes. _(Full ADR scan is intentional: PRD work
-   is design work — the author is actively making architectural decisions and full ADR context is worth the token cost.)_
+2. **Before generating anything:** Read `CLAUDE.md`, scan `docs/adrs/`, search project source dirs for existing code related to feature. Identify conflicts between requested and existing. Mandatory in both modes.
 
 3. **Branch on input mode:**
 
    **Seedling mode:**
-
-   - Read the seedling file. Preserve the author's structure, intent, and any existing sections.
-   - Review the seedling for internal conflicts and conflicts against the existing codebase (from step 2).
-   - Use `AskUserQuestion` to ask 2–3 targeted clarifying questions focused on conflicts, gaps, and ambiguities (not
-     repeating what the seedling already says).
-   - Expand the seedling into a complete PRD, filling in all missing template sections.
+   - Read seedling file. Preserve author's structure, intent, existing sections.
+   - Review for internal conflicts and conflicts against existing codebase (step 2).
+   - Use `AskUserQuestion` to ask 2–3 targeted clarifying questions (focus on conflicts, gaps, ambiguities — not repeating seedling content).
+   - Expand seedling into complete PRD, filling all missing template sections.
 
    **Text description mode:**
+   - Use `AskUserQuestion` to ask 3–5 clarifying questions (problem/goal, core functionality, scope/boundaries, success criteria). At least one question must probe conflicts with existing functionality from step 2.
+   - Generate complete PRD from scratch.
 
-   - Use `AskUserQuestion` to ask 3–5 clarifying questions (focus on: problem/goal, core functionality,
-     scope/boundaries, success criteria). At least one question must probe potential conflicts with existing
-     functionality uncovered in step 2.
-   - Generate a complete PRD from scratch.
+4. Generated PRD must follow annotated example in `references/example-prd.md` and include **Design Considerations** and **Open Questions**.
 
-4. The generated PRD must follow the annotated example in `references/example-prd.md` and include **Design
-   Considerations** and **Open Questions**.
-
-5. Developer stories should follow the scaffold-first / implement-second pattern for any new or changed API surface:
-   the first story creates typed stubs (interfaces, API contracts) with `NotImplementedError` bodies and skeleton tests;
-   subsequent stories implement the business logic against those stable contracts via TDD.
+5. Developer stories: scaffold-first / implement-second for any new/changed API surface. First story creates typed stubs (interfaces, API contracts) with `NotImplementedError` bodies and skeleton tests; subsequent stories implement business logic against stable contracts via TDD.
 
 6. Save to `plans/<branch>-prd.md`.
-   - If `<source_issues>` is non-null and non-empty, write a metadata table **immediately after the H1 heading**
-     and **before section `## 1.`**, with **one `| Source Issue |` row per issue**, using exactly this format:
+   - `<source_issues>` non-null and non-empty → write metadata table **immediately after H1 heading** and **before `## 1.`**, one `| Source Issue |` row per issue:
 
      ```markdown
      # <Title>
@@ -144,34 +107,23 @@ ______________________________________________________________________
      ## 1. Introduction/Overview
      ```
 
-     For a single issue, the table has exactly one `Source Issue` row.
+   - `<source_issues>` null or empty → omit metadata table. H1 followed directly by `## 1. Introduction/Overview`.
 
-   - If `<source_issues>` is null or empty, omit the metadata table entirely — the H1 heading is followed directly
-     by `## 1. Introduction/Overview` with no table in between.
+   > **Reading note for agents/future readers:** Metadata table (if present) appears **immediately after H1** and **before first `##` section**. Parsers: locate H1, scan forward collecting all `| Source Issue |` rows before `##`; none found → `source_issues` is `null`.
 
-   > **Reading note for agents and future readers:** The metadata table, if present, appears **immediately after
-   > the H1 heading** and **before the first `##` section heading**. Parsers should locate the H1, then scan
-   > forward collecting **all** `| Source Issue |` rows before encountering a `##` line; if none are found,
-   > `source_issues` is `null`.
+### Phase 2: Design refinement
 
-### Phase 2: Design refinement (questions + expand open questions)
+1. Review PRD's **Design Considerations**. Use `AskUserQuestion` for targeted design questions.
+2. **Explicitly cross-check** each proposed design choice against existing ADRs and `CLAUDE.md` patterns. Design choice contradicts existing decision → surface as conflict requiring resolution (possibly via new ADR superseding old one).
+3. Append newly discovered questions to **bottom of Open Questions** (keep existing; add "Added in Phase 2" subsection).
+4. Update `plans/<branch>-prd.md` with refined design considerations and updated open questions.
 
-1. Review the PRD's **Design Considerations** and use `AskUserQuestion` to ask a targeted series of design questions.
-2. **Explicitly cross-check** each proposed design choice against existing ADRs and `CLAUDE.md` patterns. If a design
-   choice contradicts an existing decision, surface this as a conflict requiring resolution (potentially via a new ADR
-   that supersedes the old one).
-3. Append newly discovered questions to the **bottom of the Open Questions section** (keep existing; add an "Added in
-   Phase 2" subsection).
-4. Update `plans/<branch>-prd.md` with the refined design considerations and updated open questions.
+### Phase 3: Final refinement
 
-### Phase 3: Final refinement (answer all open questions + final pass)
-
-1. Use `AskUserQuestion` to ask the user **all remaining Open Questions**.
-2. Refine the PRD one final time based on the answers.
-3. **Final conflict sweep:** Before saving, verify that no requirement in the PRD contradicts another, and that no
-   requirement conflicts with the existing codebase as understood from the Phase 1 research. If any conflict is found,
-   raise it with the user and resolve before saving.
-4. Save the final version to `plans/<branch>-prd.md`.
+1. Use `AskUserQuestion` to ask user **all remaining Open Questions**.
+2. Refine PRD one final time based on answers.
+3. **Final conflict sweep:** Verify no requirement contradicts another, and no requirement conflicts with existing codebase from Phase 1 research. Conflict found → raise with user and resolve before saving.
+4. Save final version to `plans/<branch>-prd.md`.
 
 > **Important:** Do NOT start implementing. Just create the PRD.
 
@@ -179,23 +131,18 @@ ______________________________________________________________________
 
 ## Before Saving
 
-- [ ] Phase 0 completed: `<branch>` chosen (`feat-<slug>`), main synced from origin, branch checked out and verified,
-  `plans/` directory exists, symlink `plans/<branch>` → `~/.claude/tasks/<branch>` created and validated
-- [ ] GitHub issue URLs scanned from `$ARGUMENTS`: `<source_issues>` set to `["owner/repo#N", ...]` if found, `null` otherwise;
-  for each issue, `gh issue edit` assignment attempted (warning printed on failure, PRD creation not blocked)
+- [ ] Phase 0 complete: `<branch>` chosen, main synced from origin, branch checked out and verified, `plans/` exists, symlink `plans/<branch>` → `~/.claude/tasks/<branch>` created and validated
+- [ ] GitHub issue URLs scanned: `<source_issues>` set to `["owner/repo#N", ...]` or `null`; `gh issue edit` assignment attempted per issue (warning on failure, PRD not blocked)
 - [ ] Input mode detected: seedling (file path) or text description
-- [ ] `CLAUDE.md`, `docs/adrs/`, and project source directories searched for conflicts before generating
-- [ ] Phase 1 PRD includes all 9 sections (see `references/example-prd.md`), including Design Considerations and Open
-  Questions
-- [ ] If `<source_issues>` is non-null: metadata table present immediately after H1 heading and before `## 1.`, one row per issue; if null:
-  no metadata table in PRD
+- [ ] `CLAUDE.md`, `docs/adrs/`, project source dirs searched for conflicts before generating
+- [ ] Phase 1 PRD includes all 9 sections (see `references/example-prd.md`), incl. Design Considerations and Open Questions
+- [ ] `<source_issues>` non-null → metadata table present immediately after H1 and before `## 1.`, one row per issue; null → no metadata table
 - [ ] Seedling mode: author's structure and intent preserved; only gaps/ambiguities questioned
-- [ ] User input gathered in each phase as needed
-- [ ] Incorporated user's answers into the PRD after each refinement phase
+- [ ] User input gathered each phase as needed; answers incorporated after each refinement
 - [ ] Phase 2 cross-checked all design choices against existing ADRs and `CLAUDE.md` patterns
-- [ ] Phase 3 final conflict sweep completed — no intra-PRD contradictions, no codebase conflicts
-- [ ] Developer stories are small, specific, and follow the scaffold-first pattern
-- [ ] Functional requirements are numbered (`FR-###`) and unambiguous
-- [ ] Any old `plans/<branch>-prd.md` is archived to `plans/archive/`
+- [ ] Phase 3 final conflict sweep complete — no intra-PRD contradictions, no codebase conflicts
+- [ ] Developer stories small, specific, follow scaffold-first pattern
+- [ ] Functional requirements numbered (`FR-###`) and unambiguous
+- [ ] Old `plans/<branch>-prd.md` archived to `plans/archive/`
 - [ ] Non-goals section clarifies Goal section boundaries
-- [ ] Any newly discovered questions were appended to the bottom of **Open Questions** (with a phase marker)
+- [ ] Newly discovered questions appended to bottom of **Open Questions** (with phase marker)
