@@ -1,11 +1,8 @@
 # Back-Pressure Gate Template
 
-This is a reusable template for the gate check performed at the end of a hyperteam run. The gate
-agent reads `plans/<branch>-team-state.json` and `plans/<branch>-progress.txt` to determine whether
-all tasks have passed validation. Substitute `<slug>` and `<branch>` with the actual values before
-use.
+Reusable template for gate check at end of hyperteam run. Gate agent reads `plans/<branch>-team-state.json` and `plans/<branch>-progress.txt` to verify all tasks passed validation. Substitute `<slug>` and `<branch>` with actual values.
 
-______________________________________________________________________
+---
 
 ## Gate Agent Instructions
 
@@ -14,52 +11,39 @@ You are the back-pressure gate agent. Perform all five checks below IN ORDER.
 
 ## Check 1 — Documentation–code alignment
 
-Verify that all docs/, README.md, CONTRIBUTING.md content matches the implemented code.
+Verify all docs/, README.md, CONTRIBUTING.md content matches implemented code.
 
-- If mismatched AND the PRD makes it clear which is correct → fix the out-of-sync artifact.
-- If mismatched AND the PRD is ambiguous → ask the user to resolve the difference. Append the
-  resolution to a new "Implementation Conflict Resolutions" section at the bottom of the PRD file
-  (plans/<branch>-prd.md). Do not modify any other section of the PRD.
+- Mismatched AND PRD makes correct one clear → fix out-of-sync artifact.
+- Mismatched AND PRD ambiguous → ask user to resolve. Append resolution to new "Implementation Conflict Resolutions" section at bottom of PRD file (plans/<branch>-prd.md). Do not modify any other PRD section.
 
 ## Check 2 — ADR sync
 
-Verify that all applicable design choices made during implementation have been documented as ADRs
-and that each ADR's Status field is set correctly (Accepted, Rejected, Superseded, etc.).
+Verify all applicable design choices made during implementation are documented as ADRs with correct Status fields (Accepted, Rejected, Superseded, etc.).
 
-**Primary path (adr-wizard installed):** If the `/adr-check` skill is available, invoke it.
-Use its pass/fail result directly. If it returns FAIL, fix the reported issues and re-run
-`/adr-check` until it passes.
+**Primary path (adr-wizard installed):** If `/adr-check` skill available, invoke it. Use pass/fail directly. FAIL → fix reported issues, re-run `/adr-check` until passes.
 
-**Fallback path (adr-wizard not installed):** If no ADR check skill is available, locate ADR
-directories manually:
-1. Read the project's `CLAUDE.md` for a heading containing `ADR Locations` (any heading level,
-   case-insensitive). Treat each bullet item under that heading as a relative path to an ADR
-   directory.
-2. If no such heading exists, scan the repository root for `docs/adrs/`, `decisions/`, and
-   `architecture/decisions/` directories.
-3. For each directory found, verify all ADR files have non-empty Status fields and that the
-   `README.md` index is in sync with the actual ADR files. If out of sync, update the ADRs
-   and re-validate.
+**Fallback path (adr-wizard not installed):** Locate ADR dirs manually:
+1. Read project `CLAUDE.md` for heading containing `ADR Locations` (any level, case-insensitive). Each bullet → relative path to ADR dir.
+2. If no such heading, scan repo root for `docs/adrs/`, `decisions/`, `architecture/decisions/`.
+3. Per dir, verify all ADR files have non-empty Status fields and README.md index is in sync. Out of sync → update ADRs, re-validate.
 
-If no ADR directories are found via either method, this check passes with a warning.
+No ADR dirs found via either method → check passes with warning.
 
 ## Check 3 — Pre-commit checks
 
-Run the project's verification command as specified in CLAUDE.md.
-This includes linting, formatting, and tests. Must exit 0.
+Run project's verification command per CLAUDE.md. Includes lint, format, tests. Must exit 0.
 
 ## Check 4 — Acceptance criteria
 
-Verify every acceptance criterion in each developer story in the PRD has been met.
+Verify every acceptance criterion in each developer story in PRD is met.
 
 ## Check 5 — Success metrics
 
-Verify every success metric listed in the PRD's Success Metrics section has been met.
+Verify every success metric in PRD's Success Metrics section is met.
 
 ## Progress file logging
 
-After every check (pass or fail) and after every user interaction, append a summary to
-plans/<branch>-progress.txt. Use this format:
+After every check (pass or fail) and every user interaction, append to plans/<branch>-progress.txt:
 
 ## [Date/Time] - GATE-<slug>-NN
 - Checks passed: [list]
@@ -71,42 +55,34 @@ plans/<branch>-progress.txt. Use this format:
 
 ## Failure escalation
 
-If checks 1–2 fail, fix them in-place as described above.
+Checks 1–2 fail → fix in-place as described above.
 
-If checks 3–5 fail:
+Checks 3–5 fail:
 
-1. ITERATION GUARD: If the current gate iteration count (gate_iterations in team-state.json) is 4
-   or higher, ask the user before proceeding. The message must include:
-   - The current gate iteration number.
-   - A summary of which checks have been failing and whether the same checks have failed
-     repeatedly across prior gate iterations (recurring) or are new failures — read
-     plans/<branch>-progress.txt to determine this.
-   - What problems still remain and what remediation entries would be written if the user approves.
-   - A clear question: should the escalation proceed, or should the user intervene directly?
-   Do not proceed with steps 2–3 until the user responds. This guard applies on every gate
-   iteration from the 4th onward.
+1. ITERATION GUARD: If gate_iterations in team-state.json is 4 or higher, ask user before proceeding. Message must include:
+   - Current gate iteration number.
+   - Summary of which checks failing and whether same checks failed repeatedly across prior iterations (recurring) or are new — read plans/<branch>-progress.txt to determine.
+   - What problems remain and what remediation entries would be written if user approves.
+   - Clear question: proceed with escalation, or user intervenes directly?
+   Do not proceed with steps 2–3 until user responds. Guard applies every gate iteration from 4th onward.
 
-2. Write remediation entries to team-state.json (new task objects with status: pending) and append
-   a summary of each remediation entry to plans/<branch>-progress.txt.
+2. Write remediation entries to team-state.json (new task objects with status: pending). Append summary of each to plans/<branch>-progress.txt.
 
 3. Increment gate_iterations in team-state.json.
 
-4. Signal the team lead to re-seed the native task list by sending a SendMessage to the lead:
+4. Signal team lead via SendMessage:
 
    > GATE FAIL — <summary of which checks failed>
    > Remediation tasks written to team-state.json. Please re-seed native tasks.
 
-   Do NOT call TaskCreate yourself — the lead is responsible for seeding the native task list
-   from the remediation entries in team-state.json.
+   Do NOT call TaskCreate — lead is responsible for seeding native task list from remediation entries.
 ```
 
-______________________________________________________________________
+---
 
 ## Gate entry format reminder
 
 - **Gate iterations:** tracked via `gate_iterations` integer in `plans/<branch>-team-state.json`.
 - **Numbering:** Each successive gate increments `gate_iterations` by 1.
-- **Remediation tasks:** written as new objects in the `tasks` array with `status: pending`,
-  appropriate `role_hint`, and appropriate `blocked_by` entries.
-- **Native task seeding:** the team lead calls `TaskCreate` for each remediation task after
-  receiving the GATE FAIL signal — the gate agent does not create native tasks directly.
+- **Remediation tasks:** new objects in `tasks` array with `status: pending`, appropriate `role_hint`, appropriate `blocked_by`.
+- **Native task seeding:** lead calls `TaskCreate` per remediation task after receiving GATE FAIL signal — gate agent does not create native tasks directly.

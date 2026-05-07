@@ -2,12 +2,9 @@
 
 # Notification Delivery
 
-> **[Guidance — Metadata table]** If `/prd` was invoked with a GitHub issue URL in its arguments (e.g.
-> `/prd https://github.com/owner/repo/issues/42 my feature desc`), a metadata table is written **immediately
-> after the H1 heading** and **before `## 1.`**, as shown below. If no issue URL was provided, omit the table
-> entirely — the H1 heading is followed directly by `## 1.`.
+> **[Guidance — Metadata table]** If `/prd` invoked with a GitHub issue URL (e.g. `/prd https://github.com/owner/repo/issues/42 my feature desc`), metadata table written **immediately after H1** and **before `## 1.`**, as shown below. No issue URL → omit table; H1 followed directly by `## 1.`.
 >
-> **Table-present example** (issue URL was detected):
+> **Table-present example** (issue URL detected):
 >
 > ```markdown
 > # Notification Delivery
@@ -29,7 +26,7 @@
 
 ## 1. Introduction/Overview
 
-> **[Guidance]** Describe the problem being solved and why it matters to the project. Keep it concise.
+> **[Guidance]** Describe the problem being solved and why it matters. Keep it concise.
 
 The system currently has no way to deliver notifications to users when important events occur. When a background process
 completes or an error requires attention, users must manually poll for status. This feature adds a notification delivery
@@ -46,10 +43,7 @@ pipeline that routes messages through configurable channels (email, in-app, webh
 
 ## 3. Developer Stories
 
-> **[Guidance]** One story = one autonomous agent iteration. Each must fit in a single context window. Use the
-> scaffold-first / implement-second pattern for any new or changed API surface: the first story creates typed stubs
-> (interfaces, API contracts) with placeholder bodies and skeleton tests; subsequent stories implement the business logic
-> against those stable contracts via TDD. Story IDs follow format `FEAT-<slug>-NN` (two-digit zero-padded).
+> **[Guidance]** One story = one autonomous agent iteration. Each must fit in a single context window. Use scaffold-first / implement-second for any new or changed API surface: first story creates typed stubs (interfaces, API contracts) with placeholder bodies and skeleton tests; subsequent stories implement business logic against those stable contracts via TDD. Story IDs: `FEAT-<slug>-NN` (two-digit zero-padded).
 
 ### FEAT-notification-delivery-01: Scaffold NotificationPayload and DeliveryService API
 
@@ -107,8 +101,7 @@ event producers can send notifications without knowing delivery details.
 
 ## 7. Technical Considerations
 
-> **[Guidance]** Environment, language, tooling constraints. Adapt these to your project's stack — the examples below
-> are illustrative, not prescriptive.
+> **[Guidance]** Environment, language, tooling constraints. Examples below are illustrative, not prescriptive.
 
 - Immutable value objects for all payloads
 - Parameter encapsulation via Builder pattern
@@ -125,8 +118,7 @@ event producers can send notifications without knowing delivery details.
 
 ## 9. Open Questions
 
-> **[Guidance]** Unresolved items that need answers before or during implementation. Phase 2 and Phase 3 will resolve
-> these.
+> **[Guidance]** Unresolved items needing answers before or during implementation. Phases 2 and 3 will resolve these.
 
 - OQ-1: Should unknown-channel errors log a warning or raise immediately?
 - OQ-2: Is there an existing `User` or `Recipient` model, or should `recipient_id` be a plain string for now?

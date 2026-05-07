@@ -5,6 +5,21 @@ All notable changes to the `adr-wizard` plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-05-07
+
+### Changed
+
+- Ultra caveman compression applied to all four SKILL.md files (`adr-check`, `adr-create`,
+  `adr-deprecate`, `adr-supersede`) — drops articles, conjunctions, hedging; arrows for
+  causality; Step 5 quality-criteria paragraphs replaced with one-line reminders; all steps,
+  validation rules, YAML front-matter, and quoted error strings preserved intact
+- Ultra caveman compression applied to `adr-check-contract.md` — interface spec tables
+  (Sections 3–5: report format, diff-pattern table, pass/fail semantics) structurally identical;
+  surrounding prose compressed
+- Lite compression applied to `README-template.md` — filler and redundant repetition removed;
+  full sentences, articles, and all agent-guidance sections preserved
+- `0000-adr-template.md` unchanged (near-zero-change exception, ≤20 lines)
+
 ## [1.1.0] - 2026-03-28
 
 ### Added

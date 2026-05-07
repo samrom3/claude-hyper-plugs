@@ -1,25 +1,24 @@
 # Phase 4 — Completion and PR Offer
 
-This phase runs after the team lead returns and the GATE task has passed.
+Runs after lead returns and GATE task has passed.
 
-______________________________________________________________________
+---
 
 ## Step 1 — Compute completion summary
 
 Read `plans/<branch>-progress.txt` and `plans/<branch>-team-state.json`. Report:
+- Total tasks completed, by type: FEAT, DOC, GATE.
+- FEAT tasks validated by reviewer.
+- Gate iterations (from `gate_iterations` in `team-state.json`).
+- Time elapsed: first `progress.txt` entry to last.
 
-- Total tasks completed, broken down by type: FEAT, DOC, GATE.
-- Number of FEAT tasks validated by the validator agent.
-- Number of gate iterations (from `gate_iterations` in `team-state.json`).
-- Time elapsed: timestamp of the first `progress.txt` entry to the last.
-
-______________________________________________________________________
+---
 
 ## Step 2 — Mark run complete
 
 Update `plans/<branch>-team-state.json`: set `metadata.status` to `"complete"`.
 
-Append a final entry to `plans/<branch>-progress.txt`:
+Append to `plans/<branch>-progress.txt`:
 
 ```
 ## [ISO timestamp] - COMPLETE
@@ -30,43 +29,40 @@ Append a final entry to `plans/<branch>-progress.txt`:
 ---
 ```
 
-______________________________________________________________________
+---
 
 ## Step 3 — Offer PR creation
 
-Use `AskUserQuestion` to ask:
+Use `AskUserQuestion`:
 
 > GATE passed. All tasks complete. Create a PR for branch `<branch>`?
-> (Title will be derived from the PRD title. Answering 'no' leaves the branch open for a manual PR.)
+> (Title derived from PRD title. Answering 'no' leaves branch open for manual PR.)
 
-______________________________________________________________________
+---
 
 ## Step 4a — On confirmation: create the PR
 
 Run `gh pr create`:
 
-- `--title`: The first H1 heading in `plans/<branch>-prd.md` after the frontmatter, with any
-  backtick-wrapped skill name stripped (use the plain prose title).
-- `--body`: A summary including:
-  1. **Goals** section from the PRD (verbatim or abbreviated).
-  2. Linked stories: list of `FEAT-*` and `DOC-*` task IDs with their titles.
-  3. **Source issue close links** (if `metadata.source_issues` in `team-state.json` is non-null and non-empty):
-     - Run `gh repo view --json nameWithOwner --jq '.nameWithOwner'` to get the current repo in
-       `owner/repo` format.
-     - For **each** entry in `source_issues`, emit one `Closes` line:
-       - If `owner/repo` **matches** the current repo: `Closes #N`
-       - If `owner/repo` **does not match** (cross-repo): `Closes https://github.com/owner/repo/issues/N`
-     - Place all `Closes` lines **after** the linked stories section and **before** the `---` footer
-       separator, each on its own line, the block surrounded by blank lines.
-     - If `source_issues` is `null` or empty, omit this section entirely — no regression.
+- `--title`: First H1 in `plans/<branch>-prd.md` after frontmatter, backtick-wrapped skill name stripped (plain prose title).
+- `--body`: Summary including:
+  1. **Goals** section from PRD (verbatim or abbreviated).
+  2. Linked stories: list of `FEAT-*` and `DOC-*` task IDs with titles.
+  3. **Source issue close links** (if `metadata.source_issues` non-null and non-empty):
+     - Run `gh repo view --json nameWithOwner --jq '.nameWithOwner'` → current repo `owner/repo`.
+     - Per `source_issues` entry, emit one `Closes` line:
+       - Same repo: `Closes #N`
+       - Cross-repo: `Closes https://github.com/owner/repo/issues/N`
+     - All `Closes` lines **after** linked stories, **before** `---` footer, each on own line, block surrounded by blank lines.
+     - `source_issues` null/empty → omit section entirely.
   4. Standard footer:
      ```
      ---
      🤖 Generated with [Claude Code](https://claude.com/claude-code)
      ```
-- `--base main` (or the repo's default branch).
+- `--base main` (or repo's default branch).
 
-______________________________________________________________________
+---
 
 ## Step 4b — On decline
 
