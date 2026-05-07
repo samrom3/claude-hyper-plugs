@@ -1,12 +1,12 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Claude Code guidance for this repo.
 
 ## What This Is
 
-This repository is a **Claude Code plugin marketplace** — a curated collection of Claude Code plugins, each in its own subdirectory. Each plugin is self-contained with its own `.claude-plugin/plugin.json`, agents, skills, and documentation.
+Plugin marketplace. Each plugin: self-contained dir with `.claude-plugin/plugin.json`, agents, skills, docs.
 
-This is **not** a traditional software project with build/test/lint commands. It is a collection of Markdown-based agent definitions and skill specifications that form Claude Code plugins.
+Not a traditional project. No build/test/lint. Markdown agent definitions + skill specs only.
 
 ## Repository Structure
 
@@ -32,61 +32,41 @@ claude-hyper-plugs/
 
 ## Verification
 
-Pre-commit hooks handle formatting, linting, and plugin validation:
+Pre-commit: formatting, linting, plugin validation.
 
 ```bash
 pre-commit run --all-files    # trailing whitespace, EOF fixer, YAML check, merge conflict check, mdformat, plugin validate
 ```
 
-- mdformat (with GFM, footnote, config, ruff, and toc plugins) runs on all Markdown files **except** those under `skills/` and `agents/` (excluded because agent/skill prompts use intentional formatting).
-- `claude plugin validate .` validates the marketplace manifest and all plugin manifests/frontmatter.
-
-You can also run validation manually:
-
-```bash
-claude plugin validate .
-```
+- mdformat: all Markdown **except** `skills/` and `agents/` (intentional formatting excluded)
+- `claude plugin validate .`: validates marketplace manifest + all plugin manifests/frontmatter
 
 ## Adding a New Plugin
 
-1. Create a new directory at the repo root: `<plugin-name>/`
-1. Add `.claude-plugin/plugin.json` with the plugin metadata
-1. Add `agents/` and/or `skills/` directories with Markdown definitions
-1. Add a `README.md` documenting the plugin's purpose, installation, and usage
-1. Update the "Current Plugins" table above and the root `README.md`
+1. Create `<plugin-name>/` at repo root
+1. Add `.claude-plugin/plugin.json`
+1. Add `agents/` and/or `skills/` dirs
+1. Add `README.md`
+1. Update "Current Plugins" table + root `README.md`
 
 ## Plugin Anatomy
 
-Each plugin follows the Claude Code plugin spec:
-
-- **`.claude-plugin/plugin.json`** — Entry point. Declares name, version, description, author, license.
-- **`agents/<name>.md`** — Agent definitions with YAML front-matter (`name`, `description`, `model`, `permissionMode`).
-- **`skills/<name>/SKILL.md`** — Skill definitions with YAML front-matter (`name`, `description`, `user-invocable`). Supporting files go in `references/`.
+- `.claude-plugin/plugin.json` — name, version, description, author, license
+- `agents/<name>.md` — YAML front-matter: `name`, `description`, `model`, `permissionMode`
+- `skills/<name>/SKILL.md` — YAML front-matter: `name`, `description`, `user-invocable`. Refs → `references/`
 
 ## Plugin Conventions
 
-These conventions prevent a class of bugs caused by stale paths, missing version bumps, or
-undiscoverable agents. Follow them whenever modifying or adding a plugin.
-
 ### Agent directory — always flat
 
-All plugin agents **must** live directly in `agents/` — no subdirectories.
-
-Claude Code's default agent discovery scans only the top-level `agents/` directory. Agents nested
-under `agents/packs/`, `agents/lang/`, or any other subdirectory are **invisible** to users.
+Plugin agents **must** live directly in `agents/` — no subdirectories. Nested agents are invisible to discovery.
 
 - Correct: `hyperloop/agents/hyperteam-py-builder.md`
 - Wrong: `hyperloop/agents/packs/python/hyperteam-py-builder.md`
 
-The naming convention `hyperteam-<lang>-<role>` encodes the language pack membership; a directory
-hierarchy is redundant and harmful.
-
-> **User-added agents** (placed by the user in their project's `.claude/agents/`) are not
-> subject to this rule — users can nest however they like in their own project directories.
+> User-added agents (in `.claude/agents/`) not subject to this rule.
 
 ### Versioning — semantic versioning
-
-Plugins use [Semantic Versioning](https://semver.org/spec/v2.0.0.html):
 
 | Change type                                        | Version bump | Example           |
 | -------------------------------------------------- | ------------ | ----------------- |
@@ -94,30 +74,16 @@ Plugins use [Semantic Versioning](https://semver.org/spec/v2.0.0.html):
 | New feature (adds agents, skills, or capabilities) | **minor**    | `1.0.0` → `1.1.0` |
 | Bug fix, documentation, refactor (no API change)   | **patch**    | `1.0.0` → `1.0.1` |
 
-Always bump the version in `plugin.json` when publishing changes. Claude Code caches plugin
-manifests; without a version bump, existing users will not receive the update.
+Bump `plugin.json` on every publish. CC caches manifests — no bump → users miss update.
 
 ### CHANGELOG — required for every version bump
 
-Every version bump **must** have a corresponding entry in the plugin's `CHANGELOG.md`:
-
-- The file must follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
-- Place the `CHANGELOG.md` inside the plugin directory (e.g., `hyperloop/CHANGELOG.md`), not at
-  the repo root, because each plugin is independently versioned.
-- Use `[Unreleased]` for work-in-progress changes before a version is cut.
-- Entries go under `### Added`, `### Changed`, `### Fixed`, or `### Removed` subsections.
+- Keep a Changelog format. File inside plugin dir (independently versioned).
+- Use `[Unreleased]` for WIP. Entries: `### Added/Changed/Fixed/Removed`.
 
 ### README sync — required when skill interfaces change
 
-A plugin's `README.md` is the user-facing contract for how skills are invoked. Keep it in sync
-with the skill definitions whenever any of the following change:
-
-- Skill argument format or `argument-hint` (command signatures in the README must match)
-- New skills added or existing skills removed
-- Skill behavior changes visible to users (e.g., new interview flow, new output sections)
-
-When editing a `SKILL.md`, check the plugin's `README.md` and update the corresponding skill
-section before committing. The README examples must always reflect the actual invocation syntax.
+Update plugin `README.md` when: arg format/`argument-hint` changes, skills added/removed, user-visible behavior changes. README examples must match actual invocation syntax.
 
 ## Skill and Reference File Compression
 
@@ -127,6 +93,7 @@ All skill/reference files must be compressed before commit. Level depends on fil
 | ------------------------------------------------- | ------------------------------------------------------- |
 | Agent-consumed `SKILL.md`                         | Ultra caveman                                           |
 | Agent-consumed reference files                    | Ultra caveman                                           |
+| `CLAUDE.md` (this file)                           | Ultra caveman                                           |
 | Machine-parseable contract/format spec tables     | Preserve structure; compress surrounding prose only     |
 | User-facing templates (copied into user projects) | Lite caveman (drop filler/hedging; keep full sentences) |
 | Template files ≤20 lines                          | Near-zero-change — leave untouched                      |
@@ -138,3 +105,7 @@ All skill/reference files must be compressed before commit. Level depends on fil
 **Preserve always:** numbered step sequence, code blocks, YAML front-matter, table structure in spec/contract files, quoted error strings, conditional logic branches, AC lists.
 
 **Review reminder:** compress before committing new/edited skill files. PRs adding skill/reference content → include before/after line counts in PR body.
+
+## Hyperteam Role Hints
+
+Language-pack agents (`hyperteam-py-api-scaffolder`, `hyperteam-py-builder`) exist in `hyperloop/agents/` but apply only to Python tasks. For Markdown-only or non-code FEAT tasks → use `role_hint: hyperteam-worker` regardless of installed packs.
