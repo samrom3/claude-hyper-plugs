@@ -118,3 +118,23 @@ with the skill definitions whenever any of the following change:
 
 When editing a `SKILL.md`, check the plugin's `README.md` and update the corresponding skill
 section before committing. The README examples must always reflect the actual invocation syntax.
+
+## Skill and Reference File Compression
+
+All skill/reference files must be compressed before commit. Level depends on file type:
+
+| File type                                         | Level                                                   |
+| ------------------------------------------------- | ------------------------------------------------------- |
+| Agent-consumed `SKILL.md`                         | Ultra caveman                                           |
+| Agent-consumed reference files                    | Ultra caveman                                           |
+| Machine-parseable contract/format spec tables     | Preserve structure; compress surrounding prose only     |
+| User-facing templates (copied into user projects) | Lite caveman (drop filler/hedging; keep full sentences) |
+| Template files ≤20 lines                          | Near-zero-change — leave untouched                      |
+
+**Ultra — drop:** articles (a/an/the), conjunctions, hedging, pleasantries, multi-sentence quality-criteria paragraphs → one-line reminders (e.g., `*Context: describe problem forces, not solution.*`).
+
+**Arrows for causality:** X → Y.
+
+**Preserve always:** numbered step sequence, code blocks, YAML front-matter, table structure in spec/contract files, quoted error strings, conditional logic branches, AC lists.
+
+**Review reminder:** compress before committing new/edited skill files. PRs adding skill/reference content → include before/after line counts in PR body.
