@@ -1,12 +1,8 @@
 # team-state.json Schema
 
-`plans/<branch>-team-state.json` is the authoritative task state registry for a hyperteam run. It
-is written at the start of Phase 2 and mutated by the lead agent, reviewer, and teammates
-throughout the run. The native task list (managed via `TaskCreate`/`TaskUpdate`/`TaskList`) is the
-live coordination bus; `team-state.json` is the durable mirror used for re-entrancy and as the
-single source of truth for blocker resolution.
+`plans/<branch>-team-state.json` is the authoritative task state registry for a hyperteam run. Written at Phase 2 start; mutated by lead, reviewer, and teammates throughout. Native task list (via `TaskCreate`/`TaskUpdate`/`TaskList`) is the live coordination bus; `team-state.json` is the durable mirror for re-entrancy and blocker resolution.
 
-______________________________________________________________________
+---
 
 ## Top-level structure
 
@@ -18,18 +14,18 @@ ______________________________________________________________________
 }
 ```
 
-______________________________________________________________________
+---
 
 ## `metadata`
 
-| Field          | Type            | Description                                                                                                                                                                     |
-| -------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `branch`       | string          | Git branch name (e.g. `"feat-user-auth"`).                                                                                                                                     |
-| `slug`         | string          | Short identifier derived from branch (e.g. `"user-auth"`).                                                                                                                     |
-| `prd_path`     | string          | Relative path to the PRD file (e.g. `"plans/feat-user-auth-prd.md"`).                                                                                                          |
-| `status`       | string          | Overall run status. One of: `"running"`, `"complete"`.                                                                                                                          |
-| `source_issues` | string[] \| null | Optional. GitHub issues that originated this work, each in `"owner/repo#N"` format (e.g. `["samrom3/claude-hyper-plugs#13"]`). `null` or empty array when no issues were provided. **MUST NOT be mutated after `team-state.json` is first written.** |
-| `created_at`   | string          | ISO 8601 timestamp when the file was first written.                                                                                                                             |
+| Field           | Type             | Description                                                                                                                                                                                                                   |
+| --------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `branch`        | string           | Git branch name (e.g. `"feat-user-auth"`).                                                                                                                                                                                    |
+| `slug`          | string           | Short identifier derived from branch (e.g. `"user-auth"`).                                                                                                                                                                    |
+| `prd_path`      | string           | Relative path to PRD file (e.g. `"plans/feat-user-auth-prd.md"`).                                                                                                                                                            |
+| `status`        | string           | Overall run status. One of: `"running"`, `"complete"`.                                                                                                                                                                        |
+| `source_issues` | string[] \| null | GitHub issues originating this work, each in `"owner/repo#N"` format (e.g. `["samrom3/claude-hyper-plugs#13"]`). `null` or empty when none provided. **MUST NOT be mutated after `team-state.json` is first written.** |
+| `created_at`    | string           | ISO 8601 timestamp when file first written.                                                                                                                                                                                   |
 
 ### Example
 
@@ -44,29 +40,28 @@ ______________________________________________________________________
 }
 ```
 
-______________________________________________________________________
+---
 
 ## `tasks`
 
-Array of task objects. Each object represents one unit of work derived from the PRD DAG or created
-as a gate remediation entry.
+Array of task objects. Each represents one unit of work from PRD DAG or gate remediation.
 
-| Field              | Type                   | Default | Description                                                        |
-|--------------------|------------------------|---------|---------------------------------------------------------------------|
-| `id`               | string                 |         | Unique task identifier (e.g. `"FEAT-user-auth-01"`).               |
-| `title`            | string                 |         | Short human-readable title.                                         |
-| `description`      | string                 |         | Full task description including acceptance criteria.                |
-| `type`             | string                 |         | One of: `"FEAT"`, `"DOC"`, `"GATE"`.                              |
-| `role_hint`        | string                 |         | Which specialist should claim this task. Matches a registered agent name. Core: `"hyperteam-reviewer"`, `"hyperteam-techwriter"`, `"hyperteam-worker"`. Language packs add more (e.g. `"hyperteam-py-api-scaffolder"`, `"hyperteam-py-builder"`). |
-| `status`           | string                 |         | One of: `"pending"`, `"in_progress"`, `"completed"`, `"validated"`, `"failed"`, `"blocked"`. |
-| `blocked_by`       | array of string        |         | IDs of tasks that must reach `"validated"` (FEAT) or `"completed"` (DOC) before this task unblocks. |
-| `native_task_id`   | string \| null         | `null`  | UUID returned by `TaskCreate` for the corresponding native task entry. Cleared to `null` on resume (re-seeded on start). |
-| `started_at`       | string \| null         | `null`  | ISO 8601 timestamp when an agent picked up this task, or `null`.   |
-| `completed_at`     | string \| null         | `null`  | ISO 8601 timestamp when the task reached `"completed"`, or `null`. |
-| `reviewed`         | boolean                | `false` | Whether the reviewer has claimed this task for review. Set to `true` as a mutex before review begins. FEAT tasks only. |
-| `review_result`    | string \| null         | `null`  | Reviewer verdict: `"PASS"`, `"FAIL"`, `"in_progress"`, or `null` if not yet reviewed. |
-| `review_notes`     | array of string \| null| `null`  | Array of specific findings from reviewer. `null` until review runs; `[]` for clean PASS; list of strings for FAIL findings. |
-| `reviewed_at`      | string \| null         | `null`  | Timestamp when reviewer completed; `null` until reviewer runs.   |
+| Field            | Type                    | Default | Description                                                                                                                                                                                                                              |
+| ---------------- | ----------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`             | string                  |         | Unique task identifier (e.g. `"FEAT-user-auth-01"`).                                                                                                                                                                                    |
+| `title`          | string                  |         | Short human-readable title.                                                                                                                                                                                                              |
+| `description`    | string                  |         | Full task description including acceptance criteria.                                                                                                                                                                                     |
+| `type`           | string                  |         | One of: `"FEAT"`, `"DOC"`, `"GATE"`.                                                                                                                                                                                                   |
+| `role_hint`      | string                  |         | Specialist to claim this task. Core: `"hyperteam-reviewer"`, `"hyperteam-techwriter"`, `"hyperteam-worker"`. Language packs add more (e.g. `"hyperteam-py-api-scaffolder"`, `"hyperteam-py-builder"`).                                    |
+| `status`         | string                  |         | One of: `"pending"`, `"in_progress"`, `"completed"`, `"validated"`, `"failed"`, `"blocked"`.                                                                                                                                           |
+| `blocked_by`     | array of string         |         | IDs of tasks that must reach `"validated"` (FEAT) or `"completed"` (DOC) before this task unblocks.                                                                                                                                     |
+| `native_task_id` | string \| null          | `null`  | UUID from `TaskCreate` for corresponding native task. Cleared to `null` on resume (re-seeded on start).                                                                                                                                  |
+| `started_at`     | string \| null          | `null`  | ISO 8601 timestamp when agent picked up task, or `null`.                                                                                                                                                                                |
+| `completed_at`   | string \| null          | `null`  | ISO 8601 timestamp when task reached `"completed"`, or `null`.                                                                                                                                                                          |
+| `reviewed`       | boolean                 | `false` | Whether reviewer claimed this task for review. Set to `true` as mutex before review begins. FEAT tasks only.                                                                                                                             |
+| `review_result`  | string \| null          | `null`  | Reviewer verdict: `"PASS"`, `"FAIL"`, `"in_progress"`, or `null` if not yet reviewed.                                                                                                                                                  |
+| `review_notes`   | array of string \| null | `null`  | Specific findings from reviewer. `null` until review runs; `[]` for clean PASS; list of strings for FAIL findings.                                                                                                                      |
+| `reviewed_at`    | string \| null          | `null`  | Timestamp when reviewer completed; `null` until reviewer runs.                                                                                                                                                                          |
 
 ### Status transitions
 
@@ -76,12 +71,12 @@ pending → in_progress → completed → validated
                                   ↘ blocked  (after third reviewer FAIL)
 ```
 
-- `pending`: not yet started; all blockers may or may not be complete.
-- `in_progress`: an agent has claimed the task.
-- `completed`: the agent finished and committed its work.
-- `validated`: the reviewer confirmed the work meets acceptance criteria (FEAT tasks only).
-- `failed`: set by a worker that cannot complete its task after retries. The lead attempts one re-dispatch before escalating to `blocked`.
-- `blocked`: task failed review three times and cannot proceed without manual intervention.
+- `pending`: not yet started; blockers may or may not be complete.
+- `in_progress`: agent has claimed task.
+- `completed`: agent finished and committed work.
+- `validated`: reviewer confirmed work meets acceptance criteria (FEAT tasks only).
+- `failed`: worker cannot complete after retries. Lead attempts one re-dispatch before escalating to `blocked`.
+- `blocked`: failed review three times; cannot proceed without manual intervention.
 
 ### Example task objects
 
@@ -169,15 +164,13 @@ DOC task (no review step):
 }
 ```
 
-______________________________________________________________________
+---
 
 ## `gate_iterations`
 
-Integer. Starts at `0` when the file is first written. Incremented by 1 each time a gate iteration
-fails (checks 3–5). Used by the iteration guard: if `gate_iterations` is **4 or higher**, the
-reviewer uses `AskUserQuestion` to ask the user before creating more remediation work.
+Integer. Starts at `0` when file first written. Incremented by 1 each time gate iteration fails (checks 3–5). Iteration guard: if `gate_iterations` is **4 or higher**, reviewer uses `AskUserQuestion` before creating more remediation work.
 
-______________________________________________________________________
+---
 
 ## Full example
 

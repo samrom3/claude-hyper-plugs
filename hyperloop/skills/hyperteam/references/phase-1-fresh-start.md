@@ -1,15 +1,13 @@
 # Phase 1 — Fresh Start
 
-This path is taken when `plans/<branch>-team-state.json` does **not** exist.
+Taken when `plans/<branch>-team-state.json` does **not** exist.
 
-______________________________________________________________________
+---
 
 ## Step 1 — Read and parse the PRD
 
 1. Read `plans/<branch>-prd.md` in full.
-   > **Metadata table:** If `/prd` was invoked with a GitHub issue URL, a metadata table appears
-   > **immediately after the H1 heading** and **before the first `##` section heading**, with this
-   > structure:
+   > **Metadata table:** If `/prd` invoked with GitHub issue URL, metadata table appears **immediately after H1 heading** and **before first `##` section heading**:
    >
    > ```markdown
    > | Field        | Value        |
@@ -17,56 +15,46 @@ ______________________________________________________________________
    > | Source Issue | owner/repo#N |
    > ```
    >
-   > Locate the H1 heading, then scan forward collecting **all** `| Source Issue |` rows before any
-   > `##` line. Extract the second cell value from each matching row and build `<source_issues>` as
-   > a list (e.g. `["samrom3/claude-hyper-plugs#13"]`). If no such rows are found before the first
-   > `##`, set `<source_issues>` to `null`.
-2. Extract all developer stories. Stories are headings that match:
-   - `### FEAT-*` — feature implementation stories
+   > Locate H1, scan forward collecting all `| Source Issue |` rows before any `##` line. Extract second cell from each matching row → `<source_issues>` list (e.g. `["samrom3/claude-hyper-plugs#13"]`). No rows before first `##` → `<source_issues> = null`.
+2. Extract all developer stories. Headings matching:
+   - `### FEAT-*` — feature impl stories
    - `### DOC-*` — documentation stories
-3. For each story, capture:
-   - **Title** — the heading text after the `### ` prefix (strip the leading ID prefix if present,
-     e.g. `### FEAT-hyperteam-skill-04: Phase 1` → title is `Phase 1`)
-   - **Description** — all body text under that heading until the next `###` heading
-4. Preserve the order stories appear in the PRD — this is the dependency order.
+3. Per story, capture:
+   - **Title** — heading text after `### ` prefix (strip leading ID if present, e.g. `### FEAT-hyperteam-skill-04: Phase 1` → `Phase 1`)
+   - **Description** — all body text under heading until next `###`
+4. Preserve PRD story order — this is dependency order.
 
-> **Note:** The scaffold-first pattern is applied by the `/prd` skill when the PRD is authored.
-> Phase 1 does not re-split stories; it maps each PRD story to exactly one task entry.
+> **Note:** Scaffold-first pattern applied by `/prd` at authoring time. Phase 1 maps each PRD story to exactly one task entry; no re-splitting.
 
-______________________________________________________________________
+---
 
 ## Step 2 — Assign task IDs
 
-Assign IDs sequentially in the order stories appear in the PRD, using two-digit zero-padded
-counters:
+Sequential IDs in PRD order, two-digit zero-padded counters:
 
 - FEAT stories → `FEAT-<slug>-01`, `FEAT-<slug>-02`, … (independent counter)
 - DOC stories → `DOC-<slug>-01`, `DOC-<slug>-02`, … (independent counter)
 - GATE → `GATE-<slug>-01` (always exactly one, created last)
 
-______________________________________________________________________
+---
 
 ## Step 3 — Infer dependencies
 
-1. Build an ordered list of all FEAT and DOC task IDs in PRD order.
-2. For each task, set `blocked_by` to the IDs of all tasks that appear **before** it in the PRD
-   and that it logically requires. Use the following heuristic:
-   - Each FEAT task is blocked by the FEAT task immediately preceding it (linear chain by default).
-   - DOC tasks that document a feature area block the FEAT tasks covering that same area.
-   - If two tasks are clearly independent (different modules, no shared interfaces), they may run
-     in parallel — omit the dependency between them.
-   - Prefer the minimal set of necessary gates; allow parallelism where possible.
-3. The `GATE-<slug>-01` task is **always** blocked by **all** FEAT and DOC tasks.
+1. Build ordered list of all FEAT and DOC task IDs in PRD order.
+2. Per task, set `blocked_by` to IDs of tasks appearing **before** it that it logically requires:
+   - Each FEAT task blocked by immediately preceding FEAT (linear chain by default).
+   - DOC tasks documenting a feature area block FEAT tasks covering same area.
+   - Clearly independent tasks (different modules, no shared interfaces) → parallel, omit dependency.
+   - Prefer minimal necessary gates; allow parallelism where possible.
+3. `GATE-<slug>-01` **always** blocked by **all** FEAT and DOC tasks.
 
-______________________________________________________________________
+---
 
 ## Step 4 — Render ASCII DAG
 
-Render a tree showing tasks, their titles, and dependency arrows. Use `└──` for children (tasks
-that are blocked by a parent). Mark parallel tasks with `[parallel]` and the gate with
-`[blocked by all]`.
+Render tree: tasks, titles, dependency arrows. `└──` for children (blocked by parent). `[parallel]` for parallel tasks. `[blocked by all]` for gate.
 
-Example format:
+Example:
 
 ```
 Branch: <branch>
@@ -81,15 +69,13 @@ DOC-<slug>-01 — <title> [parallel]
 GATE-<slug>-01 — Back-pressure gate [blocked by all]
 ```
 
-Adjust the tree to reflect the actual dependency structure derived in Step 3. Tasks blocked only
-by the root appear as children of that root. Truly independent parallel chains appear as separate
-top-level entries.
+Adjust tree to reflect actual dependency structure. Tasks blocked only by root → root's children. Independent parallel chains → separate top-level entries.
 
-______________________________________________________________________
+---
 
 ## Step 5 — Ask for user approval
 
-Use `AskUserQuestion` to present the full rendered DAG and ask:
+Use `AskUserQuestion`:
 
 > Here is the proposed task plan for `<branch>`:
 >
@@ -99,17 +85,16 @@ Use `AskUserQuestion` to present the full rendered DAG and ask:
 >
 > Does this plan look correct? Approve to proceed, or describe any changes you'd like to make.
 
-Wait for the user's response.
+Wait for response.
 
-- **If approved** — proceed to Step 5b.
-- **If changes requested** — apply the requested changes, re-render the DAG, and ask again. Repeat
-  until the user approves.
+- **Approved** → proceed to Step 5b.
+- **Changes requested** → apply changes, re-render DAG, ask again. Repeat until approved.
 
-______________________________________________________________________
+---
 
 ## Step 5b — Assign role hints
 
-For each task, assign a `role_hint` using the following rules:
+Per task, assign `role_hint`:
 
 **Core roles (always available):**
 
@@ -118,31 +103,28 @@ For each task, assign a `role_hint` using the following rules:
 | DOC tasks | `hyperteam-techwriter` |
 | GATE tasks | `hyperteam-reviewer` |
 
-**Language-pack roles (when matching agents are installed):**
+**Language-pack roles (when matching agents installed):**
 
-Check whether language-specific agents exist in the project's `.claude/agents/` or the
-plugin's `agents/` directory (all plugin agents live flat in `agents/` for auto-discovery).
-If language-pack agents are present, apply their heuristics BEFORE falling back to `hyperteam-worker`.
+Check for language-specific agents in project's `.claude/agents/` or plugin's `agents/` (all plugin agents live flat in `agents/` for auto-discovery). Apply language-pack heuristics BEFORE falling back to `hyperteam-worker`.
 
-For example, with the Python pack installed:
+Example with Python pack:
 
 | Condition | `role_hint` |
 |-----------|-------------|
-| FEAT task first in its chain, OR title contains: scaffold, stub, api, dataclass, interface, abc | `hyperteam-py-api-scaffolder` |
+| FEAT task first in chain, OR title contains: scaffold, stub, api, dataclass, interface, abc | `hyperteam-py-api-scaffolder` |
 | Other FEAT tasks | `hyperteam-py-builder` |
 
-**Fallback (no language-pack match):**
+**Fallback:**
 
 | Condition | `role_hint` |
 |-----------|-------------|
 | Any unmatched task | `hyperteam-worker` |
 
-______________________________________________________________________
+---
 
 ## Step 6 — Write team-state.json
 
-Once the user approves the plan, write `plans/<branch>-team-state.json` (schema:
-`references/team-state-schema.md`):
+On user approval, write `plans/<branch>-team-state.json` (schema: `references/team-state-schema.md`):
 
 ```json
 {
@@ -210,31 +192,27 @@ Once the user approves the plan, write `plans/<branch>-team-state.json` (schema:
 
 Rules:
 
-- `metadata.source_issues` — array extracted from the PRD metadata table in Step 1 (e.g. `["owner/repo#N"]`, or `null` if no rows found).
-  **MUST NOT be mutated after the file is first written.**
-- `metadata.created_at` — current UTC timestamp in ISO 8601 format (e.g. `"2026-03-14T10:00:00Z"`).
-- All tasks have `"status": "pending"` and all timestamp/result fields `null`.
-- All tasks have `"native_task_id": null` — native tasks are seeded by Phase 2 Step 3.
-- All FEAT tasks have `"reviewed": false`.
-- Task order: FEAT tasks first (in PRD order), then DOC tasks (in PRD order), then the GATE task.
-- `blocked_by` arrays contain the exact task IDs (strings) derived in Step 3.
-- `role_hint` values are assigned per Step 5b.
+- `metadata.source_issues` — array from PRD metadata table Step 1 (e.g. `["owner/repo#N"]`, or `null` if none). **MUST NOT be mutated after first write.**
+- `metadata.created_at` — current UTC timestamp, ISO 8601 (e.g. `"2026-03-14T10:00:00Z"`).
+- All tasks: `"status": "pending"`, all timestamp/result fields `null`.
+- All tasks: `"native_task_id": null` — native tasks seeded by Phase 2 Step 3.
+- All FEAT tasks: `"reviewed": false`.
+- Task order: FEAT (PRD order) → DOC (PRD order) → GATE.
+- `blocked_by` arrays: exact task ID strings from Step 3.
+- `role_hint` per Step 5b.
 
-**After writing the file, for each issue in `metadata.source_issues` (skip if null or empty):**
+**After writing, per issue in `metadata.source_issues` (skip if null/empty):**
 
-1. Parse the issue reference into `<owner>`, `<repo>`, and `<N>` from the `owner/repo#N` format.
+1. Parse `owner/repo#N` → `<owner>`, `<repo>`, `<N>`.
 2. Run:
    ```
    gh issue view <N> --repo <owner>/<repo> --json assignees
    ```
-   Parse the returned JSON and check whether the currently authenticated `gh` user (from
-   `gh auth status`) appears in the `assignees` array.
-3. If the authenticated user is **not** in the assignees list, run:
+   Check if authenticated `gh` user (from `gh auth status`) appears in `assignees`.
+3. If not in assignees:
    ```
    gh issue edit <N> --repo <owner>/<repo> --add-assignee @me
    ```
-4. If either command fails (unauthenticated `gh`, network error, insufficient permissions), print a
-   visible warning line (`⚠ Warning: could not verify/assign issue — <error>`) and continue — do
-   **NOT** block team creation.
+4. Command fails (unauthenticated, network error, permissions) → print warning (`⚠ Warning: could not verify/assign issue — <error>`) and continue. Do **NOT** block team creation.
 
-After processing all issues (or immediately if `source_issues` is null), return to SKILL.md and proceed to Phase 2.
+After processing all issues (or immediately if `source_issues` null) → return to SKILL.md, proceed to Phase 2.
