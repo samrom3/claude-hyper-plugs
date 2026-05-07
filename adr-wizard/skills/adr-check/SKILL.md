@@ -7,82 +7,61 @@ argument-hint: "[optional: path/to/NNNN-adr-file.md | path/to/adrs/ | natural la
 
 # adr-check
 
-Validates ADRs against contract in `references/adr-check-contract.md`. Three modes:
-
-* **Global** — all discovered ADR dirs, incl. diff-based warnings
-* **Scoped** — single file, dir, or query; no diff noise
-* **Diff** — ADRs changed in current branch
-
-Outputs structured pass/fail report with consistent header regardless of mode.
+Validates ADRs against `references/adr-check-contract.md`. Modes: **Global** (all ADR dirs + diff warnings), **Scoped** (file/dir/query — no diff noise), **Diff** (changed ADRs on branch). Outputs structured pass/fail report.
 
 ---
 
 ## Step 1 — Determine mode and discover inputs
 
 1. Inspect skill arg:
+   - **No arg** → `mode = global`. Run dir discovery (steps 2–6).
+   - **Arg = `.md` file** → `mode = scoped_file`, `target = <path>`. Skip dir discovery. Checks 2.2, 2.3, Step 4 skipped.
+   - **Arg = directory** → `mode = scoped_dir`, `target = <directory>`. Skip CLAUDE.md discovery. Use `target` as sole `adr_dirs` entry. Run Checks 2.1, 2.1e, 2.2, 2.3. Skip Step 4.
+   - **Any other non-empty arg** → `mode = scoped_query`, `query = <arg>`. Run dir discovery. Match ADR files via model judgment. Run Checks 2.1 and 2.1e only. Skip 2.2, 2.3, Step 4. No matches → emit advisory warning, exit PASS.
 
-   - **No arg** → `mode = global`. Continue with dir discovery (steps 2–6).
-
-   - **Arg resolves to `.md` file** → `mode = scoped_file`, `target = <path>`.
-     Skip dir discovery. Proceed to Step 2 with only that file.
-     Checks 2.2, 2.3, Step 4 skipped entirely.
-
-   - **Arg resolves to dir** → `mode = scoped_dir`, `target = <directory>`.
-     Skip CLAUDE.md discovery. Use `target` as sole entry in `adr_dirs`.
-     Run Checks 2.1, 2.1e, 2.2, 2.3 for that dir. Skip Step 4.
-
-   - **Any other non-empty arg** → `mode = scoped_query`, `query = <argument>`.
-     Run dir discovery (steps 2–6). Use model judgment to identify ADR files matching query.
-     Run only Checks 2.1 and 2.1e against matched files. Skip 2.2, 2.3, Step 4.
-     No ADRs match → emit advisory warning and exit PASS.
-
-2. *(global and scoped_query only)* Read project `CLAUDE.md`.
-3. *(global and scoped_query only)* Search for heading containing `ADR Locations` (case-insensitive, any level).
-4. *(global and scoped_query only)* Found → collect each bullet item as relative path, strip inline `# comments`. Store as `adr_dirs`.
-5. *(global and scoped_query only)* Not found → fall back: scan repo root for `docs/adrs/`, `decisions/`, `architecture/decisions/`.
-6. *(global only)* `adr_dirs` empty after both methods → output report `Mode: Global`, emit: `WARNING: No ADR directories found. Skipping validation.` Set `Overall: PASS` and stop.
+2. *(global/scoped_query)* Read project `CLAUDE.md`.
+3. *(global/scoped_query)* Search for heading containing `ADR Locations` (case-insensitive).
+4. *(global/scoped_query)* If found, collect bullet items as relative paths, strip inline `# comments`. Store as `adr_dirs`.
+5. *(global/scoped_query)* If not found, fall back: scan repo root for `docs/adrs/`, `decisions/`, `architecture/decisions/`.
+6. *(global only)* `adr_dirs` empty → output report `Mode: Global`, emit `WARNING: No ADR directories found. Skipping validation.`, set `Overall: PASS`, stop.
 
 ## Step 2 — Validate each directory
 
-For each dir in `adr_dirs`, run all checks below. Track failures as `issues` list.
+For each dir in `adr_dirs`, run checks below. Track failures as `issues`.
 
 ### Check 2.1 — ADR file structure
 
-1. List all files matching `NNNN-*.md` (1+ digits, hyphen, any chars, `.md`).
+1. List files matching `NNNN-*.md` (1+ digits, hyphen, any chars, `.md`).
 2. For each ADR file, verify:
-   a. **Status present and non-empty:** File contains `**Status:**` (or `## Status`) with non-empty value. Missing/empty → issue: `[ADR-NNNN] Missing or empty Status field`
-   b. **Context non-trivial:** `## Context` body has 1+ non-blank non-placeholder lines. Missing/trivial → issue: `[ADR-NNNN] ## Context section is empty or contains only placeholder text`
-   c. **Decision non-trivial:** Same check for `## Decision`. Failing → issue: `[ADR-NNNN] ## Decision section is empty or contains only placeholder text`
-   d. **Consequences present:** File contains `## Consequences`. Entirely absent → issue: `[ADR-NNNN] ## Consequences section is missing`
-   e. **Consequences quality (style check):** Model judgment — not keyword matching — assess whether `## Consequences` contains at least one genuinely adverse outcome (risk, trade-off, migration cost, complexity increase, perf regression, reduced flexibility, or explicit statement of what is given up). None found → **style warning** (not structural issue): `[ADR-NNNN] Consequences section contains no clearly adverse consequence or trade-off — consider adding one for credibility`
-      Style warnings don't affect pass/fail; reported separately (see Step 3).
+   a. **Status present/non-empty:** Line matching `**Status:**` or `## Status` with non-empty value. Else: `[ADR-NNNN] Missing or empty Status field`
+   b. **Context non-trivial:** `## Context` body has ≥1 non-blank non-placeholder line (not solely whitespace, `TODO`, `TBD`, or template guidance). Else: `[ADR-NNNN] ## Context section is empty or contains only placeholder text`
+   c. **Decision non-trivial:** Same for `## Decision`. Else: `[ADR-NNNN] ## Decision section is empty or contains only placeholder text`
+   d. **Consequences present:** `## Consequences` section exists (content may be brief). Else: `[ADR-NNNN] ## Consequences section is missing`
+   e. **Consequences quality (style):** Model judgment — ≥1 genuinely adverse outcome (risk, trade-off, migration cost, complexity increase, regression, reduced flexibility, or explicit statement of what's given up). If absent, **style warning** (not structural): `[ADR-NNNN] Consequences section contains no clearly adverse consequence or trade-off — consider adding one for credibility`. Style warnings don't affect pass/fail.
 
-### Check 2.2 — Index sync *(whole-directory mode only)*
+### Check 2.2 — Index sync *(whole-dir mode only)*
 
-1. Check `<dir>/README.md` exists.
-   - Missing → issue: `README.md index is missing from <dir>`. Skip index sync.
-2. Parse README.md table: extract all ADR filenames/numbers linked.
-3. Each ADR file in dir must have corresponding table entry. Missing → issue: `[ADR-NNNN] ADR file exists but has no entry in README.md index`
-4. Each README.md table entry must have corresponding file. Missing → issue: `[index entry] README.md references <filename> but file does not exist (orphaned entry)`
+1. If `<dir>/README.md` missing: issue `README.md index is missing from <dir>`. Skip index checks for this dir.
+2. Parse README.md table: extract all ADR filenames/numbers linked in table.
+3. Each ADR file w/o table entry → issue: `[ADR-NNNN] ADR file exists but has no entry in README.md index`
+4. Each table entry w/o matching file → issue: `[index entry] README.md references <filename> but file does not exist (orphaned entry)`
 
-### Check 2.3 — Cross-reference integrity *(whole-directory mode only)*
+### Check 2.3 — Cross-reference integrity *(whole-dir mode only)*
 
-1. For each ADR with status `Superseded by ADR-NNNN`:
-   a. Verify `NNNN-*.md` exists. Missing → issue: `[ADR-MMMM] Status says "Superseded by ADR-NNNN" but ADR-NNNN does not exist`
-   b. Read referenced ADR (NNNN). Verify contains `Supersedes: ADR-MMMM`. Missing → issue: `[ADR-NNNN] Missing "Supersedes: ADR-MMMM" back-reference`
-2. For each ADR with `Supersedes: ADR-NNNN` field:
-   a. Verify `NNNN-*.md` exists. Missing → issue: `[ADR-MMMM] References "Supersedes: ADR-NNNN" but ADR-NNNN does not exist`
-   b. Read ADR NNNN. Verify status is `Superseded by ADR-MMMM`. Mismatch → issue: `[ADR-NNNN] Expected status "Superseded by ADR-MMMM" but found different status`
+1. ADR with status `Superseded by ADR-NNNN`:
+   a. Verify `NNNN-*.md` exists. Else: `[ADR-MMMM] Status says "Superseded by ADR-NNNN" but ADR-NNNN does not exist`
+   b. Verify referenced ADR contains `Supersedes: ADR-MMMM`. Else: `[ADR-NNNN] Missing "Supersedes: ADR-MMMM" back-reference`
+2. ADR with `Supersedes: ADR-NNNN`:
+   a. Verify `NNNN-*.md` exists. Else: `[ADR-MMMM] References "Supersedes: ADR-NNNN" but ADR-NNNN does not exist`
+   b. Verify ADR-NNNN status is `Superseded by ADR-MMMM`. Else: `[ADR-NNNN] Expected status "Superseded by ADR-MMMM" but found different status`
 
 ## Step 3 — Build the validation report
 
-Separate Check 2.1e items into `style_warnings` list. NOT counted as structural issues, NOT affecting status.
+Separate Check 2.1e items into `style_warnings` (not structural, don't affect status).
 
-For each validated target (dir or file):
-- Structural issues (2.1a–2.1d) present → status = FAIL
-- Otherwise → status = PASS
+Per validated target: structural issues (2.1a–2.1d) present → FAIL, else PASS.
 
-Output report using structure below. Header rows (`Mode`, `Target`, `ADRs`) **always present** regardless of mode.
+Output report (header rows **always present**):
 
 ```
 ADR Check Report
@@ -110,43 +89,39 @@ Style Warnings (advisory only — not gate-blocking)
 Overall: PASS | FAIL
 ```
 
-**Results grouping:** `global`/`scoped_dir` → group by dir path. `scoped_file`/`scoped_query` → each file as own result entry.
+Global/scoped_dir → group by dir. scoped_file/scoped_query → each file own entry.
 
-`Style Warnings` section appears only when `style_warnings` non-empty; omit otherwise.
+`Style Warnings` section omitted if empty.
 
-Any result entry FAIL → `Overall` FAIL. Otherwise PASS.
+Any entry FAIL → `Overall: FAIL`. On FAIL, append `Remediation` section (each issue + fix action).
 
-On FAIL, append `Remediation` section listing each issue with file and action needed.
+## Step 4 — Diff-based warnings *(Global only — skip all scoped sub-modes)*
 
-## Step 4 — Diff-based warnings *(Global mode only — skip in all scoped sub-modes)*
-
-1. Run `git diff HEAD` to capture staged + unstaged changes.
-2. Scan diff for these patterns:
+1. Run `git diff HEAD`.
+2. Scan for:
 
    | Pattern | Warning |
    |---------|---------|
-   | Lines starting with `+` defining new abstract class or interface (Python `class Foo(ABC)`, `abstractmethod`, Java/TypeScript/Go `interface`, TypeScript `abstract class`) | "New interface/ABC detected in `<file>` — consider documenting the design decision with `/adr-create`" |
-   | Lines starting with `+` in new file matching `*Config*`, `*Settings*`, `*Configuration*` (case-insensitive) | "New configuration file `<file>` — consider documenting configuration decisions with `/adr-create`" |
-   | Lines starting with `+` in `package.json` (`dependencies`/`devDependencies`), `pyproject.toml` (`[tool.poetry.dependencies]` or `[project]`), `Cargo.toml` (`[dependencies]`), or `go.mod` (`require`) | "New dependency added in `<file>` — consider documenting the technology choice with `/adr-create`" |
-   | New dir at root or top-level named `service`, `module`, `component`, `pkg`, `lib`, `api`, or `gateway` | "New service/module boundary `<dir>` — consider documenting the architectural boundary with `/adr-create`" |
+   | `+` lines defining new ABC/interface (Python `class Foo(ABC)`, `abstractmethod`, Java/TS/Go `interface`, TS `abstract class`) | "New interface/ABC detected in `<file>` — consider documenting the design decision with `/adr-create`" |
+   | `+` lines in new file matching `*Config*`, `*Settings*`, `*Configuration*` (case-insensitive) | "New configuration file `<file>` — consider documenting configuration decisions with `/adr-create`" |
+   | `+` lines in `package.json` (deps/devDeps), `pyproject.toml` ([tool.poetry.dependencies]/[project]), `Cargo.toml` ([dependencies]), `go.mod` (require) | "New dependency added in `<file>` — consider documenting the technology choice with `/adr-create`" |
+   | New root/top-level dir named `service`, `module`, `component`, `pkg`, `lib`, `api`, or `gateway` | "New service/module boundary `<dir>` — consider documenting the architectural boundary with `/adr-create`" |
 
 3. Warnings found → append to report:
-
    ```
    Diff-Based Warnings (advisory only — not gate-blocking)
    ========================================================
      - [WARNING] <message>
    ```
-
-   No warnings → omit section entirely.
+   No warnings → omit section.
 
 ## Step 5 — Output and exit
 
-Print full report. Overall result determines exit signal to callers:
+Print full report.
 
-- **PASS** (with or without warnings): success. Gate consumers continue.
-- **FAIL**: failure. Gate consumers block and present remediation to user.
+- **PASS** (with/without diff/style warnings): success. Gate consumers continue.
+- **FAIL**: failure. Gate consumers block; present remediation to user.
 
 ## Additional Resources
 
-- **`references/adr-check-contract.md`** — Full contract: discovery rules, validation checks (2.1–2.3, 2.1e), report format, pass/fail semantics, invocation modes.
+- **`references/adr-check-contract.md`** — Full contract: discovery rules, checks (2.1–2.3, 2.1e), report format, pass/fail semantics, invocation modes.
