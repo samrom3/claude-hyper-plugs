@@ -37,6 +37,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `references/example-prd.md` guidance updated to show both the table-present and table-absent
   PRD states.
 
+## [1.3.1] - 2026-05-07
+
+### Changed
+
+- Ultra caveman compression applied to `prd/SKILL.md` (201→~130 lines) and
+  `hyperteam/SKILL.md` (203→~130 lines) — articles/conjunctions/hedging dropped; arrows for
+  causality; "Seedling philosophy" blockquote condensed to 1–2 lines; Critical Review Mandate
+  multi-sentence rationale → 1–2 line imperatives; Phase notes → one-line callouts; all
+  phase/step structure, `AskUserQuestion` call specs, `git` command sequences, and conditional
+  logic branches preserved intact
+- Ultra caveman compression applied to all six reference files:
+  `phase-1-fresh-start.md`, `phase-1-resume.md`, `phase-4-completion.md` (numbered steps
+  preserved in order); `gate-task-template.md` (gate check sequence Check 1–5 and
+  failure-escalation logic preserved); `team-state-schema.md` (JSON examples remain valid,
+  field names/status values/timestamps unchanged, field description cells compressed);
+  `example-prd.md` (`> **[Guidance]**` blockquotes compressed, PRD body fully preserved)
+
 ## [1.2.0] - 2026-03-27
 
 ### Changed
