@@ -7,85 +7,70 @@ user-invocable: true
 
 # adr-supersede
 
-Creates a new ADR that supersedes an existing one, updates the old ADR's status, and maintains
-bidirectional cross-references in both files and the directory index.
+Creates new ADR superseding existing one, updates old ADR status, maintains bidirectional cross-references in both files and dir index.
 
-> ADRs are **additive only**: never delete or heavily rewrite an accepted ADR. This skill exists
-> so that the history of decisions is preserved — the old ADR remains readable, and the new ADR
-> explains what changed and why.
+> ADRs are **additive only**: never delete or heavily rewrite accepted ADR. Skill preserves history — old ADR remains readable, new ADR explains what changed and why.
 
 ---
 
 ## Step 1 — Discover ADR directories
 
-Follow the same discovery procedure as `adr-create` (Step 1):
+Follow same discovery as `adr-create` (Step 1):
 
-1. Search `CLAUDE.md` for any heading containing `ADR Locations`. Collect bullet paths into
-   `adr_dirs`, stripping inline `# comments`.
-2. If not found, fall back to scanning for `docs/adrs`, `decisions`, `architecture/decisions`.
-3. If empty, inform the user and stop.
+1. Search `CLAUDE.md` for heading containing `ADR Locations`. Collect bullet paths into `adr_dirs`, stripping inline `# comments`.
+2. Not found → fall back to scanning for `docs/adrs`, `decisions`, `architecture/decisions`.
+3. Empty → inform user and stop.
 
 ## Step 2 — Select target directory
 
-If multiple directories exist, auto-suggest the most relevant based on recent file context
-(same logic as `adr-create` Step 2). Present the suggestion and wait for confirmation.
+Multiple dirs → auto-suggest most relevant based on recent file context (same logic as `adr-create` Step 2). Present suggestion and wait for confirmation.
 
-Use the confirmed path as `target_dir`.
+Use confirmed path as `target_dir`.
 
 ## Step 3 — Parse the argument and identify ADRs
 
-Parse the argument (text after `/adr-supersede`) using this format:
+Parse arg (text after `/adr-supersede`) using format:
 
 ```
 <old_num>[->new_num] [new decision text or reason]
 ```
 
 Examples:
-- `3 Switching from PostgreSQL to CockroachDB` → old=3, new ADR does not exist yet, decision text provided
+- `3 Switching from PostgreSQL to CockroachDB` → old=3, new ADR doesn't exist yet, decision text provided
 - `3->7 CockroachDB chosen to replace PostgreSQL` → old=3, new=7 (ADR-0007 already exists), rationale provided
 - `3->7` → old=3, new=7 already exists, no extra text
 
 Resolution:
 
 1. List all files in `target_dir` matching `NNNN-*.md`.
-2. **Parse `old_num`** from the argument. Zero-pad to 4 digits and find the matching file as
-   `old_adr`. If no argument was given, display the ADR list and ask:
+2. **Parse `old_num`** from arg. Zero-pad to 4 digits, find matching file as `old_adr`. No arg → display ADR list and ask:
    > Which ADR is being superseded? (enter the number)
-3. **Parse `new_num`** if an arrow (`->`) was present:
-   - If `new_num` is provided and the file `<new_num_padded>-*.md` exists, set `new_adr` to
-     that file. The new ADR already exists — skip Steps 4–6 and go directly to Step 7 to link
-     the two ADRs together.
-   - If `new_num` is provided but the file does not exist, treat it as a title/number hint for
-     the new ADR to be created in Step 6.
-   - If no `->` was given, the new ADR must be created (proceed through all steps).
+3. **Parse `new_num`** if arrow (`->`) present:
+   - `new_num` provided and file `<new_num_padded>-*.md` exists → set `new_adr` to that file. New ADR already exists — skip Steps 4–6, go directly to Step 7 to link the two ADRs.
+   - `new_num` provided but file missing → treat as title/number hint for new ADR to be created in Step 6.
+   - No `->` given → new ADR must be created (proceed through all steps).
 4. Confirm:
    > Superseding: ADR-NNNN — <title>. Proceed? (y/n)
-5. If `old_adr`'s current status is already `Superseded by ADR-MMMM`, warn:
+5. `old_adr` status already `Superseded by ADR-MMMM` → warn:
    > ADR-NNNN is already superseded by ADR-MMMM. Supersede again? (y/n)
    Proceed only on confirmation.
 
 ## Step 4 — Understand the supersession
 
-The skill must understand **why** the old decision is being replaced and **what** the new
-decision is. Gather this from multiple sources:
+Skill must understand **why** old decision is being replaced and **what** new decision is. Gather from multiple sources:
 
-1. **Read the old ADR in full** — its Context, Decision, and Consequences sections provide the
-   baseline understanding of what is changing.
-2. **Check conversation context** — the user may have just discussed why the old approach no
-   longer works or what the replacement should be.
-3. **Check the argument** — if the user provided text after `/adr-supersede` (beyond the ADR
-   number), use it as the supersession rationale.
+1. **Read old ADR in full** — Context, Decision, Consequences provide baseline understanding of what is changing.
+2. **Check conversation context** — user may have discussed why old approach no longer works or what replacement should be.
+3. **Check arg** — text after `/adr-supersede` (beyond ADR number) → use as supersession rationale.
 
-From these sources, derive:
-- `new_adr_title`: a concise title for the replacement decision.
-- `what_changed`: why the original decision is being replaced (new constraints, better
-  alternatives, lessons learned, etc.).
-- `new_decision`: what the new decision is, stated specifically and declaratively.
+Derive:
+- `new_adr_title`: concise title for replacement decision.
+- `what_changed`: why original decision is being replaced (new constraints, better alternatives, lessons learned, etc.).
+- `new_decision`: what new decision is, stated specifically and declaratively.
 
-If any of these cannot be confidently inferred, interview the user with `AskUserQuestion`.
-Batch questions together — for example, if both the new title and rationale are needed:
+Any can't be confidently inferred → interview user with `AskUserQuestion`. Batch questions — if both new title and rationale needed:
 
-> I'm superseding ADR-NNNN (<old_title>). To write the replacement ADR, I need:
+> I'm superseding ADR-NNNN (<old_title>). To write replacement ADR, I need:
 >
 > 1. What is the new decision? (e.g., "Use Redis for session storage instead of PostgreSQL")
 > 2. What changed that makes the old decision no longer appropriate?
@@ -94,72 +79,60 @@ Proceed only after all three pieces are clear.
 
 ## Step 5 — Draft the new ADR sections
 
-Using the old ADR as a foundation and the supersession context from Step 4, draft all sections:
+Using old ADR as foundation and supersession context from Step 4, draft all sections:
 
 ### Context
 
-Write a paragraph explaining the situation. Start from the old ADR's Context (what was the
-original problem?), then explain what has changed since — new constraints, growth, incidents,
-technology shifts, or lessons learned that invalidate the original decision. Reference the old
-ADR by number.
+Write paragraph explaining situation. Start from old ADR's Context (what was original problem?), then explain what changed — new constraints, growth, incidents, technology shifts, or lessons learned invalidating original decision. Reference old ADR by number.
 
 ### Decision
 
-Write the new decision clearly and declaratively. Contrast with the old decision where helpful
-(e.g., "We will migrate from X to Y because..."). Include the `**Supersedes:** ADR-<old_num>`
-cross-reference.
+Write new decision clearly and declaratively. Contrast with old decision where helpful (e.g., "We will migrate from X to Y because..."). Include `**Supersedes:** ADR-<old_num>` cross-reference.
 
 ### Consequences
 
-Write 3–7 bullet points covering:
-- Benefits of the new approach over the old one
+Write 3–7 bullets covering:
+- Benefits of new approach over old
 - Migration or transition costs
-- Risks or trade-offs of the new decision
-- Any follow-up work required (e.g., "migrate existing data", "update deployment configs")
-- What becomes easier vs. harder compared to the superseded approach
+- Risks or trade-offs of new decision
+- Follow-up work required (e.g., "migrate existing data", "update deployment configs")
+- What becomes easier vs. harder compared to superseded approach
 
-If consequences cannot be inferred confidently, ask:
-> What are the key benefits of the new approach, and what migration or transition costs are
-> anticipated?
+Consequences can't be inferred → ask:
+> What are the key benefits of the new approach, and what migration or transition costs are anticipated?
 
 ## Step 6 — Create the new ADR via adr-create
 
-Invoke the `adr-create` skill to create the new ADR. Pass it:
-- The `new_adr_title` as the decision summary argument
-- The full supersession context (old ADR content + what changed + new decision) so adr-create
-  can draft all sections correctly
+Invoke `adr-create` skill to create new ADR. Pass:
+- `new_adr_title` as decision summary arg
+- Full supersession context (old ADR content + what changed + new decision) so adr-create can draft all sections correctly
 
-After adr-create completes, it will have written the new file and updated the index. Capture
-the new ADR's path and number as `new_adr` and `next_num`.
+After adr-create completes, it will have written new file and updated index. Capture new ADR path and number as `new_adr` and `next_num`.
 
-Then open the new ADR file and add the cross-reference metadata line after `**Date:**`:
+Then open new ADR file and add cross-reference metadata line after `**Date:**`:
 ```
 **Supersedes:** ADR-<old_num_padded>
 ```
 
-Save the file.
+Save file.
 
 ## Step 7 — Link the superseded ADR
 
 1. Open `old_adr`.
-2. Find the `**Status:**` line. Replace its value with:
-   `Superseded by ADR-<next_num_padded>`
-3. If `new_adr` already existed (the `->` path), also add a `**Superseded by:**` metadata line
-   after `**Date:**` if it is not already present.
-4. Save the file.
+2. Find `**Status:**` line. Replace value with: `Superseded by ADR-<next_num_padded>`
+3. `new_adr` already existed (`->` path) → also add `**Superseded by:**` metadata line after `**Date:**` if not already present.
+4. Save file.
 
 ## Step 8 — Update the index
 
 1. Open `<target_dir>/README.md`.
-2. Find the row for the old ADR. Update its `Status` column to
-   `Superseded by ADR-<next_num_padded>`.
-3. If the new ADR was just created by adr-create, its index row was already added — skip adding
-   a duplicate row. If the new ADR already existed and is not yet in the index, add it now.
+2. Find row for old ADR. Update `Status` column to `Superseded by ADR-<next_num_padded>`.
+3. New ADR just created by adr-create → its index row already added, skip duplicate. New ADR already existed and not yet in index → add now.
 4. Save `README.md`.
 
 ## Step 9 — Confirm
 
-Inform the user:
+Inform user:
 
 > ADR-<old_num_padded> → ADR-<next_num_padded>: <new_adr_title>
 > Updated ADR-<old_num_padded>: Status → "Superseded by ADR-<next_num_padded>"
@@ -169,21 +142,16 @@ Inform the user:
 
 ## Step 10 — Post-write validation
 
-Invoke `adr-check` in scoped mode against the superseded ADR (the file this skill directly
-modified in Step 7):
+Invoke `adr-check` in scoped mode against superseded ADR (file this skill directly modified in Step 7):
 
 ```
 /adr-check <old_adr_path>
 ```
 
-Display all output to the user.
+Display all output to user.
 
-- If `adr-check` returns a structural **FAIL**: block completion and prompt the user to resolve
-  the issue before proceeding:
-  > The superseded ADR has a structural validation failure. Please fix the issue above before
-  > confirming this supersession is complete.
-- If `adr-check` emits style warnings only: display them and continue. Style warnings are
-  informational and do not block completion.
+- **Structural FAIL:** Block completion, prompt user to resolve issue before proceeding:
+  > The superseded ADR has a structural validation failure. Please fix the issue above before confirming this supersession is complete.
+- **Style warnings only:** Display and continue. Style warnings are informational, don't block completion.
 
-Note: the new ADR (created via `adr-create` in Step 6) is already validated by `adr-create`'s
-own post-write step — do not run `adr-check` on it again here.
+Note: new ADR (created via `adr-create` in Step 6) is already validated by adr-create's own post-write step — do not run `adr-check` on it again here.
