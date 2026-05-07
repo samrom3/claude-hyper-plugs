@@ -7,7 +7,7 @@ user-invocable: true
 
 # adr-create
 
-Creates new ADR file with auto-numbering, fills from Nygard template, updates dir README.md index.
+Creates new ADR file with auto-numbering, fills Nygard template, updates dir's README.md index.
 
 ---
 
@@ -15,195 +15,169 @@ Creates new ADR file with auto-numbering, fills from Nygard template, updates di
 
 ### Phase A — Silent evaluation (always runs first)
 
-Using domain knowledge and full conversation context, assess decision across these axes before engaging user:
+Assess decision across axes before engaging user:
 
 | Axis | What to assess |
-|------|---------------|
-| **Alternatives** | Do obvious alternatives exist? Would knowledgeable engineer have weighed options, or was this effectively forced? |
-| **Scope** | Does decision cross module, team, or service boundaries — or local to one function/file? |
-| **Reversibility** | Is cost of undoing significant (data migration, API contract change, team retraining)? |
-| **Tradeoffs** | Does conversation context already surface what was given up? |
-| **Existing ADRs** | Does decision extend, contradict, or supersede prior architectural choice? |
+|------|----------------|
+| **Alternatives** | Obvious alternatives exist? Or was decision effectively forced? |
+| **Scope** | Crosses module/team/service boundaries — or local to one fn/file? |
+| **Reversibility** | Undoing costs significant? (data migration, API contract change, retraining) |
+| **Tradeoffs** | Context surface what was given up? |
+| **Existing ADRs** | Extends, contradicts, or supersedes prior choice? |
 
-**If Phase A yields clear verdict**, act directly — no debate needed:
+**Clear verdict → act directly:**
+- **Clear yes** (cross-cutting, meaningful alternatives, non-trivial reversal cost, or intersects existing ADR): proceed to Step 1 without engaging user.
+- **Clear no** (routine impl detail, derivable from code, no alternatives in play, entirely local): inform user, suggest lighter alternative (inline comment, team note), stop. No escape hatch.
 
-- **Clear yes** (cross-cutting, meaningful alternatives existed, non-trivial reversal cost, or intersects existing ADR): proceed to Step 1 without engaging user.
-- **Clear no** (routine impl detail, derivable from code, no alternatives ever in play, entirely local): inform user plainly, suggest lighter alternative (inline comment, team discussion note), stop. No escape hatch.
-
-**If Phase A inconclusive** — alternatives ambiguous, tradeoffs not surfaced, or decision boundaries unclear — proceed to Phase B.
+**Inconclusive** (alternatives ambiguous, tradeoffs not surfaced, decision boundaries unclear) → Phase B.
 
 ---
 
-### Phase B — Adversarial debate (only when Phase A is inconclusive)
+### Phase B — Adversarial debate (only when Phase A inconclusive)
 
-Engage user to extract info Phase A couldn't resolve. Debate loads context Steps 4–5 need; surfaces decision's true shape, which may not match user's original framing.
-
-**Posture: adversarial-constructive.** Argue against ADR necessity — or against framing — until picture is clear. State challenges directly; don't soften into questions with obvious answers.
+Engage user to extract info Phase A couldn't resolve. Posture: adversarial-constructive. Argue against ADR necessity or framing until clear. State challenges directly; no softening.
 
 **Challenge axes** (raise 1–3 based on what Phase A left unresolved):
 
-| Axis | Counterpoint to raise |
-|------|-----------------------|
-| **Scope** | "This sounds contained to [X]. Why does someone working on different part of system six months from now need to know about it?" |
-| **Obviousness** | "Experienced engineer reading code would likely infer this from [Y]. What would they miss that ADR adds?" |
-| **Reversibility** | "What is real cost of undoing this? If low, permanent record may not be warranted." |
-| **Alternatives** | "What alternatives did you actually consider? If only one option was ever on table, this may be recording outcome rather than decision." |
-| **Novelty** | "Is this consistent with existing ADR? If so, may be implementing already-approved pattern rather than making new decision." |
+| Axis | Counterpoint |
+|------|-------------|
+| **Scope** | "This sounds contained to [X]. Why does someone on a different part of the system six months from now need to know?" |
+| **Obviousness** | "Experienced engineer reading the code would likely infer this from [Y]. What would they miss?" |
+| **Reversibility** | "Real cost of undoing this? If low, permanent record may not be warranted." |
+| **Alternatives** | "What alternatives did you actually consider? If only one option was ever on the table, this may be recording an outcome, not a decision." |
+| **Novelty** | "Is this consistent with existing ADR? If so, it may be implementing an already-approved pattern." |
 
-Conduct 1–2 exchanges. Steelman user's responses, then counter if case still unconvincing. Debate ends when picture clear enough to route to outcome.
+1–2 exchanges. Steelman responses, counter if still unconvincing. End when picture is clear.
 
 ---
 
-### Outcome routing (after Phase A or Phase B)
+### Outcome routing (after Phase A or B)
 
 | Outcome | Action |
 |---------|--------|
 | **Single ADR warranted** | Proceed to Step 1. |
-| **Multiple ADRs warranted** | Decision is compound. Surface each distinct decision: "This looks like two separate decisions: [A] and [B]. I'll create them in sequence — starting with [A]." Proceed to Step 1 for first; loop back to Step 0 for each subsequent. |
-| **Supersede or deprecate warranted** | Decision changes prior architectural choice. Surface: "This appears to supersede ADR-NNNN ([title]). I'll hand off to `/adr-supersede`." Stop and invoke appropriate lifecycle skill. |
-| **Decision does not warrant ADR** (Phase A clear no, or debate concludes no) | Explain why confidently. If Phase A source (clear no), stop without escape hatch. If debate concludes no, offer escape hatch: "I'm not convinced this clears the bar for a permanent ADR. That said, you're the author — proceed anyway, or revisit the framing?" Use `AskUserQuestion` with **Proceed anyway** and **Revisit framing**. Revisit restarts Phase B with updated framing; proceed continues to Step 1. |
+| **Multiple ADRs warranted** | Surface each distinct decision: "This looks like two separate decisions: [A] and [B]. I'll create them in sequence — starting with [A]." Proceed to Step 1 for first; loop Step 0 for each subsequent. |
+| **Supersede/deprecate warranted** | "This appears to supersede ADR-NNNN ([title]). I'll hand off to `/adr-supersede`." Invoke lifecycle skill, stop. |
+| **No ADR warranted** | Explain confidently. Phase A clear no → stop, no escape hatch. Debate concludes no → offer escape hatch via `AskUserQuestion`: **Proceed anyway** / **Revisit framing**. Revisit restarts Phase B; proceed → Step 1. |
 
 ## Step 1 — Discover ADR directories
 
 1. Read project `CLAUDE.md`.
-2. Search for heading containing `ADR Locations` (case-insensitive, any level, e.g., `## ADR Locations`).
-3. Found → read every bullet item under that heading as relative path. Ignore inline `# comment` (strip from `#` to EOL). Collect into `adr_dirs`.
-4. No such heading → fall back: scan repo root for `docs/adrs`, `decisions`, `architecture/decisions`.
-5. `adr_dirs` empty → offer to bootstrap using `AskUserQuestion`:
+2. Search for heading containing `ADR Locations` (case-insensitive, any heading level).
+3. If found, collect bullet items as relative paths, strip inline `# comments`. Store as `adr_dirs`.
+4. If not found, fall back: scan repo root for `docs/adrs`, `decisions`, `architecture/decisions`.
+5. If `adr_dirs` empty, offer bootstrap via `AskUserQuestion`:
    > No ADR directories found. Would you like me to create one?
 
-   Options:
-   - `docs/adrs/` (recommended — standard location)
-   - Other (custom path)
+   Options: `docs/adrs/` (recommended) or custom path.
 
-   User confirms:
-   a. Create chosen dir.
-   b. Copy README template from [`references/README-template.md`](references/README-template.md) into `<chosen_dir>/README.md`, replacing `<PROJECT_NAME>` with actual project name (inferred from repo root dir name or `package.json`/`pyproject.toml`).
-   c. Copy [`references/0000-adr-template.md`](references/0000-adr-template.md) into new dir as template reference file.
-   d. Add `### ADR Locations` section to project `CLAUDE.md` (or create if absent) with new dir path.
-   e. Set `adr_dirs` to newly created dir and continue to Step 2.
+   On confirm:
+   a. Create dir.
+   b. Copy [`references/README-template.md`](references/README-template.md) → `<dir>/README.md`, replace `<PROJECT_NAME>`.
+   c. Copy [`references/0000-adr-template.md`](references/0000-adr-template.md) → new dir.
+   d. Add `### ADR Locations` section to `CLAUDE.md` (or create if absent).
+   e. Set `adr_dirs` to new dir, continue to Step 2.
 
 ## Step 2 — Select target directory
 
-1. `adr_dirs` has exactly one entry → use as `target_dir`.
+1. Single entry → use as `target_dir`.
 2. Multiple entries:
-   a. Identify dir whose path best matches user's recent file context (files mentioned in conversation, files opened in editor, or dir of most recently mentioned file). Choose ADR dir sharing longest common prefix.
-   b. Present as suggested default:
+   a. Identify dir whose path best matches recent file context (longest common prefix with files mentioned in conversation/editor).
+   b. Present suggestion:
       > Suggested ADR directory: `<target_dir>` (based on recent file context)
       > Other options: `<list remaining dirs>`
       > Press Enter to accept, or type path of another directory.
-   c. Wait for confirmation or override.
-   d. Use confirmed path as `target_dir`.
+   c. Wait for confirmation. Use confirmed path as `target_dir`.
 
 ## Step 3 — Determine next ADR number
 
-1. List all files in `target_dir` matching `NNNN-*.md` (NNNN = 1+ digits).
-2. Find highest number among matching filenames.
-3. `next_num = highest + 1` (or `1` if no matching files exist).
-4. Zero-pad `next_num` to 4 digits: e.g., `1` → `0001`, `12` → `0012`.
+1. List files in `target_dir` matching `NNNN-*.md`.
+2. Find highest number.
+3. `next_num = highest + 1` (or `1` if none exist).
+4. Zero-pad to 4 digits: `1` → `0001`, `12` → `0012`.
 
 ## Step 4 — Parse the decision context
 
-User may provide decision as arg to `/adr-create <decision summary>`, or it may be in conversation context.
-
-1. **Arg provided** (e.g., `/adr-create Use PostgreSQL for primary storage`): use arg text as `decision_summary`.
-2. **No arg, but conversation context** contains clear architectural decision: extract from context as `decision_summary`.
-3. **No arg and no clear context**: ask:
+1. **Arg provided** (e.g., `/adr-create Use PostgreSQL for primary storage`): use as `decision_summary`.
+2. **No arg, conversation contains clear decision**: extract as `decision_summary`.
+3. **No arg, no clear context**: ask:
    > What architectural decision are you recording? (e.g., "Use PostgreSQL for primary storage")
 
-From `decision_summary` and full conversation context, derive:
-- `adr_title`: concise title (summary itself, or shortened form if verbose).
-
-Convert `adr_title` to kebab-case slug for filename: lowercase, spaces and special chars → hyphens.
+From `decision_summary` + conversation context, derive `adr_title`. Convert to kebab-case slug: lowercase, spaces/specials → hyphens.
 
 ## Step 5 — Draft all ADR sections
 
-Skill authors every section — do not leave template placeholders. Infer content from conversation context, codebase state, `decision_summary`. Insufficient info → use `AskUserQuestion` before proceeding.
+Author every section — no template placeholders for user. Infer from conversation, codebase, `decision_summary`. Use `AskUserQuestion` when info insufficient.
 
 ### Context
 
-Context: describe problem forces, not solution. Don't advocate chosen approach.
+*Context: describe problem forces, not solution. Reader understands why decision needed, not pre-sold on answer.*
 
-Write short paragraph explaining **why** decision needed. Draw from:
-- Conversation history (what problem was being discussed?)
-- Recent code changes or files under discussion
-- Any constraints, requirements, or trade-offs mentioned
-
-Info insufficient → ask:
+Draw from conversation history, recent code/files, constraints/tradeoffs mentioned. If insufficient:
 > What problem or situation prompted this decision? What constraints are in play?
 
 ### Decision
 
-Decision: active voice ("We decided to X" / "We will use Y"), specific, declarative. State what chosen, not why (→ Context) or what happens next (→ Consequences).
+*Decision: active voice ("We decided to X"). Specific, declarative. No passive constructions. State what was chosen, not why or what happens next.*
 
-Write few sentences stating **what** was decided. Draw from:
-- `decision_summary` arg
-- Any explicit choices made in conversation
+Be specific (e.g., "We will use PostgreSQL 16 as primary data store for all user-facing services"). Draw from `decision_summary` + explicit conversation choices.
 
-Decision ambiguous → ask:
+If ambiguous:
 > Can you state the decision more precisely? What exactly are we choosing to do?
 
 ### Consequences
 
-Consequences: min 1 adverse outcome required; 3–7 bullets; 200–400 words. Every choice involves giving something up.
+*Consequences: ≥1 genuinely adverse consequence required. 200–400 words. Substantially more → consider splitting into two ADRs.*
 
-Write 3–7 bullets covering **positive** and **negative** consequences:
-- Benefits expected
-- Trade-offs or risks accepted (at least one — required)
-- Follow-up work created
-- Migration or compatibility implications, if applicable
+3–7 bullets: expected benefits, trade-offs/risks (≥1 required), follow-up work, migration/compatibility implications.
 
-Consequences can't be inferred → ask:
+If can't infer:
 > What are the main benefits and trade-offs of this decision? Any follow-up work it creates?
 
 ### Interview flow
 
-Batch questions — if clarity needed on multiple sections, ask together in single `AskUserQuestion` call. Proceed to file creation only after all sections have substantive content.
+Batch questions — ask multiple sections' questions in single `AskUserQuestion`. Proceed to file creation only after all sections have substantive content.
 
 ## Step 6 — Create the ADR file
 
-1. Construct filename: `<target_dir>/<NNNN>-<slug>.md`.
+1. Filename: `<target_dir>/<NNNN>-<slug>.md`.
 2. Fill template from [`references/0000-adr-template.md`](references/0000-adr-template.md):
    - Replace `NNNN` with zero-padded number.
    - Replace `Title` with `adr_title`.
-   - Set `**Status:** Proposed` (new ADRs always start Proposed unless user specifies otherwise).
-   - Set `**Date:**` to today's date in `YYYY-MM-DD`.
-   - Write drafted Context, Decision, Consequences into respective sections.
+   - Set `**Status:** Proposed` (new ADRs always Proposed unless user specifies otherwise).
+   - Set `**Date:**` to today's date (`YYYY-MM-DD`).
+   - Write Context, Decision, Consequences content.
 3. Write file to disk.
 
 ## Step 7 — Update the index
 
-1. Check `<target_dir>/README.md` exists.
-   - Missing → create with structure:
-     ```markdown
-     # Architecture Decision Records
+1. If `<target_dir>/README.md` missing, create:
+   ```markdown
+   # Architecture Decision Records
 
-     | ADR | Title | Status |
-     |-----|-------|--------|
-     ```
-2. Add new row to table:
+   | ADR | Title | Status |
+   |-----|-------|--------|
+   ```
+2. Add row:
    ```
    | [ADR-NNNN](<NNNN>-<slug>.md) | <adr_title> | Proposed |
    ```
-   Insert at end of table (after last existing row).
+   Insert after last existing row.
 3. Save `README.md`.
 
 ## Step 8 — Confirm
-
-Inform user:
 
 > Created `<target_dir>/<NNNN>-<slug>.md` (ADR-NNNN: <adr_title>)
 > Updated index: `<target_dir>/README.md`
 >
 > Review the ADR and change the Status to `Accepted` when the decision is finalised.
 >
-> Tip: commit this ADR in the same PR as (or just before) the code it describes so decision and implementation are traceable together.
+> Tip: commit this ADR in the same PR as (or just before) the code it describes so the decision and implementation are traceable together.
 
 ## Step 9 — Post-write validation
 
-1. Invoke `adr-check` in scoped mode against newly created ADR file:
-   `adr-check <target_dir>/<NNNN>-<slug>.md`
+1. Invoke `adr-check` scoped against new ADR: `adr-check <target_dir>/<NNNN>-<slug>.md`
 2. Review result:
-   - **Structural FAIL:** Block completion and present issues to user. Prompt to resolve structural problems before confirming completion. Offer to fix directly if straightforward (e.g., missing section).
-   - **Style warnings:** Display to user but don't block. ADR considered complete; user may address or not.
-   - **PASS (no warnings):** Skill completes successfully.
+   - **Structural FAIL:** Block completion, present issues to user. Offer to fix directly if straightforward.
+   - **Style warnings:** Display, don't block. ADR complete; user may address or not.
+   - **PASS (no warnings):** Complete successfully.
