@@ -102,7 +102,7 @@ Any entry FAIL → `Overall: FAIL`. On FAIL, append `Remediation` section (each 
 
    | Pattern | Warning |
    |---------|---------|
-   | `+` lines defining new ABC/interface (Python `class Foo(ABC)`, `abstractmethod`, Java/TS/Go `interface`, TS `abstract class`) | "New interface/ABC detected in `<file>` — consider documenting the design decision with `/adr-create`" |
+   | `+` lines defining new ABC/interface (Python `class Foo(ABC)`, `abstractmethod`, Java/TS `interface`, Go `interface` with multiple methods, TS `abstract class`) | "New interface/ABC detected in `<file>` — consider documenting the design decision with `/adr-create`" |
    | `+` lines in new file matching `*Config*`, `*Settings*`, `*Configuration*` (case-insensitive) | "New configuration file `<file>` — consider documenting configuration decisions with `/adr-create`" |
    | `+` lines in `package.json` (deps/devDeps), `pyproject.toml` ([tool.poetry.dependencies]/[project]), `Cargo.toml` ([dependencies]), `go.mod` (require) | "New dependency added in `<file>` — consider documenting the technology choice with `/adr-create`" |
    | New root/top-level dir named `service`, `module`, `component`, `pkg`, `lib`, `api`, or `gateway` | "New service/module boundary `<dir>` — consider documenting the architectural boundary with `/adr-create`" |

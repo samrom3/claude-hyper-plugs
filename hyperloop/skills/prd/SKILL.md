@@ -17,7 +17,7 @@ ______________________________________________________________________
 **Primary job: critique requirements, not agree with them.** Before accepting any requirement, actively search for:
 
 1. **Explicit conflicts** — contradictory requirements, mutually exclusive acceptance criteria.
-2. **Implicit conflicts against existing codebase** — contradictions with existing ADRs, `CLAUDE.md` patterns, current domain model, or `CONTRIBUTING.md` conventions. Read `CLAUDE.md`, scan `docs/adrs/`, search project source dirs before accepting any requirement.
+2. **Implicit conflicts against existing codebase** — contradictions with existing ADRs, `CLAUDE.md` patterns, current domain model, or `CONTRIBUTING.md` conventions. Read `CLAUDE.md` for ADR locations, scan ADR dirs, search project source dirs before accepting any requirement.
    _(Full ADR scan intentional: PRD work is design work.)_
 3. **Ambiguity-hidden conflicts** — vague requirements that seem compatible but force contradictory impl choices.
 
@@ -75,7 +75,7 @@ ______________________________________________________________________
 
 1. If `plans/<branch>-prd.md` exists, move to `plans/archive/<branch>-prd.md` before continuing.
 
-2. **Before generating anything:** Read `CLAUDE.md`, scan `docs/adrs/`, search project source dirs for existing code related to feature. Identify conflicts between requested and existing. Mandatory in both modes.
+2. **Before generating anything:** Read `CLAUDE.md` for ADR locations, scan ADR dirs, search project source dirs for existing code related to feature. Identify conflicts between requested and existing. Mandatory in both modes.
 
 3. **Branch on input mode:**
 
@@ -134,7 +134,7 @@ ______________________________________________________________________
 - [ ] Phase 0 complete: `<branch>` chosen, main synced from origin, branch checked out and verified, `plans/` exists, symlink `plans/<branch>` → `~/.claude/tasks/<branch>` created and validated
 - [ ] GitHub issue URLs scanned: `<source_issues>` set to `["owner/repo#N", ...]` or `null`; `gh issue edit` assignment attempted per issue (warning on failure, PRD not blocked)
 - [ ] Input mode detected: seedling (file path) or text description
-- [ ] `CLAUDE.md`, `docs/adrs/`, project source dirs searched for conflicts before generating
+- [ ] `CLAUDE.md` ADR locations, ADR dirs, project source dirs searched for conflicts before generating
 - [ ] Phase 1 PRD includes all 9 sections (see `references/example-prd.md`), incl. Design Considerations and Open Questions
 - [ ] `<source_issues>` non-null → metadata table present immediately after H1 and before `## 1.`, one row per issue; null → no metadata table
 - [ ] Seedling mode: author's structure and intent preserved; only gaps/ambiguities questioned

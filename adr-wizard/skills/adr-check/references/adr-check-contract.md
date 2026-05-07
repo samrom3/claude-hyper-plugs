@@ -144,7 +144,7 @@ Patterns to detect:
 | New abstract class or interface definition (Python ABC, Java `interface`, Go `interface{}` with multiple methods, TypeScript `interface`/`abstract class`) | "New interface/ABC detected in \<file\> — consider documenting the design decision" |
 | New file matching `*Config*`, `*Settings*`, `*Configuration*` | "New configuration file detected — consider documenting configuration decisions" |
 | Addition of new dependency in `package.json`, `pyproject.toml`, `Cargo.toml`, or `go.mod` | "New dependency added — consider documenting the technology choice" |
-| New top-level dir or new subdir named `service`, `module`, `component`, `pkg`, `lib` | "New service/module boundary detected — consider documenting the architectural boundary" |
+| New top-level dir or new subdir named `service`, `module`, `component`, `pkg`, `lib`, `api`, or `gateway` | "New service/module boundary detected — consider documenting the architectural boundary" |
 
 Warnings appended to report after main validation output:
 
