@@ -106,6 +106,6 @@ All skill/reference files must be compressed before commit. Level depends on fil
 
 **Review reminder:** compress before committing new/edited skill files. PRs adding skill/reference content → include before/after line counts in PR body.
 
-## Hyperteam Role Hints
+## Hyperteam Task Routing
 
-All tasks use `role_hint: hyperteam-worker`. No specialist role hints. Skill assignment via `skills:` array in task YAML front-matter — entries from `hyperloop/skills/worker-skills/` library. Worker loads each skill via `Skill` tool at claim time before beginning work.
+Task type drives agent routing: FEAT/DOC → worker, GATE → reviewer. No `role_hint` field — type is the source of truth. Skill assignment via `skills:` array in task YAML front-matter — entries from `hyperloop/skills/worker-skills/` library. Use `skills: none` sentinel in spec annotations for no-skill steps (config, env setup, etc.).

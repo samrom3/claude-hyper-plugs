@@ -86,11 +86,9 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    - **One step = one commit.** Scope each step so it can be implemented and committed independently (assuming prior steps already on branch). Steps that cannot be committed in isolation must be merged or re-scoped.
    - AC per step: `- [ ]` items — concrete, independently falsifiable checks. Include: artifact exists, behavior correct, project verification command passes. For new API surface, first step creates stubs with failing tests; subsequent steps implement against stable contracts.
 
-4. **Skill assignment per step.** Every step must declare `role_hint` and `skills`. These appear in the task YAML front-matter block when hyperteam seeds the native task list.
+4. **Skill assignment per step.** Every step must declare `skills`. Parsed by hyperteam Phase 1 → `skills` array in task YAML front-matter.
 
-   All steps: `role_hint: hyperteam-worker`. No specialist role_hints.
-
-   Apply all rules that match. Zero skills is valid (e.g. pure config, env setup, non-code steps).
+   Apply all rules that match.
 
    - Python code involved → add `python`
    - TypeScript code involved → add `typescript`
@@ -98,10 +96,11 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    - Step generates stubs, schemas, or API surface → add `api-scaffold`
    - Step is docs, README, changelog, ADR, or user-facing writing → add `tech-writing`
 
+   No matches → `skills: none` (explicit sentinel; worker skips loading).
+
    Each step annotation (embedded in spec body, parsed by hyperteam Phase 1):
    ```
    > skills: tdd, python
-   > role_hint: hyperteam-worker
    ```
 
    Example step with skill annotation:
@@ -109,7 +108,6 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    ### STEP-auth-01: Implement JWT validation middleware
 
    > skills: tdd, python
-   > role_hint: hyperteam-worker
 
    **Acceptance Criteria:**
    - [ ] `src/auth/middleware.py` exists with `validate_jwt(token: str) -> Claims` function
@@ -122,7 +120,6 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    ---
    id: FEAT-auth-01
    type: FEAT
-   role_hint: hyperteam-worker
    skills:
      - tdd
      - python
@@ -150,5 +147,6 @@ ______________________________________________________________________
 - [ ] `<source_issues>` non-null → metadata table present immediately after H1 and before `## Goal`; null → no table
 - [ ] Spec uses `## Goal / ## Context / ## Non-goals / ## Steps / ## Open Questions` structure
 - [ ] Each step has `**Acceptance Criteria:**` checklist with ≥1 concrete, independently falsifiable `- [ ]` item
+- [ ] Each step has `> skills:` annotation (`skills: none` if no rules match)
 - [ ] Old `plans/<branch>-session-spec.md` archived to `plans/archive/` if existed
 - [ ] Final conflict sweep complete — no intra-spec contradictions, no codebase conflicts

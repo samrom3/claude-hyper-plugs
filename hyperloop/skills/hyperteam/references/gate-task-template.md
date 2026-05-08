@@ -84,5 +84,5 @@ Checks 3–5 fail:
 
 - **Gate iterations:** tracked via `gate_iterations` integer in `plans/<branch>-team-state.json`.
 - **Numbering:** Each successive gate increments `gate_iterations` by 1.
-- **Remediation tasks:** new objects in `tasks` array with `status: pending`, appropriate `role_hint`, appropriate `blocked_by`.
+- **Remediation tasks:** new objects in `tasks` array with `status: pending`, appropriate `skills`, appropriate `blocked_by`. Task type drives agent routing (FEAT/DOC → worker; GATE → reviewer).
 - **Native task seeding:** lead calls `TaskCreate` per remediation task after receiving GATE FAIL signal — gate agent does not create native tasks directly.

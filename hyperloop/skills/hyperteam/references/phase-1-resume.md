@@ -52,7 +52,8 @@ Use `AskUserQuestion`:
      ---
      id: <task_id>
      type: <FEAT|DOC|GATE>
-     role_hint: <role_hint>
+     skills:
+       - <skill_name>
      blocked_by:
        - <blocker_id_1>
      ---

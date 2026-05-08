@@ -42,18 +42,18 @@ Hyperloop is a two-step process. First you build a session-spec through a struct
                     ┌──────────────────────────────▼──────────────────────────┐
   Step 2            │         Lead parses session-spec → task DAG             │
   (/hyperteam)      │                                                         │
-                    │   ┌─────────┐   ┌─────────┐   ┌─────────┐              │
-                    │   │Worker 1 │   │Worker 2 │   │Worker N │  . . .       │
-                    │   └────┬────┘   └────┬────┘   └────┬────┘              │
+                    │   ┌─────────┐   ┌─────────┐   ┌─────────┐               │
+                    │   │Worker 1 │   │Worker 2 │   │Worker N │  . . .        │
+                    │   └────┬────┘   └────┬────┘   └────┬────┘               │
                     │        └────────────┬┘              │                   │
-                    │                     ▼                │                   │
+                    │                     ▼                │                  │
                     │               ┌──────────┐          │                   │
                     │               │ Reviewer │◄─────────┘                   │
                     │               │  [GATE]  │                              │
                     │               └────┬─────┘                              │
-                    │                    │ pass                                │
-                    │                    ▼                                     │
-                    │                   PR                                     │
+                    │                    │ pass                               │
+                    │                    ▼                                    │
+                    │                   PR                                    │
                     └─────────────────────────────────────────────────────────┘
 ```
 
@@ -130,7 +130,7 @@ After session-spec selection, hyperloop will:
 
 - Parse the PRD into a dependency-ordered task DAG
 - Show you the plan and wait for approval
-- Create a three-agent team (lead + N workers + reviewer; N inferred from parallel-eligible task count)
+- Create a multi-agent team (lead + N workers + reviewer; N ≤ 4 inferred from parallel-eligible task count)
 - Execute all tasks with TDD, code review, and a back-pressure gate
 - Offer to create a PR when everything passes
 

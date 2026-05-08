@@ -24,6 +24,7 @@ Taken when `plans/<branch>-team-state.json` does **not** exist.
    - **Type** — `DOC` if heading prefix is `DOC-`; `FEAT` otherwise
    - **Title** — heading text after `### ` prefix (strip leading prefix+ID if present, e.g. `### STEP-foo-01: Bar` → `Bar`)
    - **Description** — all body text under heading until next `###`
+   - **Skills** — scan description for `> skills: <value>` line. `<value>` is comma-separated skill names → split to array. `none` or absent → `[]`.
 4. Preserve spec step order — this is dependency order.
 
 > **Note:** Scaffold-first pattern applied by `/session-spec` at authoring time. Phase 1 maps each spec step to exactly one task entry; no re-splitting.
@@ -89,21 +90,8 @@ Use `AskUserQuestion`:
 
 Wait for response.
 
-- **Approved** → proceed to Step 5b.
+- **Approved** → proceed to Step 6.
 - **Changes requested** → apply changes, re-render DAG, ask again. Repeat until approved.
-
----
-
-## Step 5b — Assign role hints
-
-Per task, assign `role_hint`:
-
-| Condition | `role_hint` |
-|-----------|-------------|
-| FEAT and DOC tasks | `hyperteam-worker` |
-| GATE tasks | `hyperteam-reviewer` |
-
-No specialist role hints. All FEAT/DOC work claimed by `hyperteam-worker` via `skills:` array at claim time.
 
 ---
 
@@ -127,7 +115,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
       "title": "<step title>",
       "description": "<full step text including acceptance criteria>",
       "type": "FEAT",
-      "role_hint": "hyperteam-worker",
+      "skills": ["<skill_name>"],
       "status": "pending",
       "blocked_by": [],
       "native_task_id": null,
@@ -143,7 +131,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
       "title": "<step title>",
       "description": "<full step text>",
       "type": "DOC",
-      "role_hint": "hyperteam-worker",
+      "skills": ["tech-writing"],
       "status": "pending",
       "blocked_by": ["FEAT-<slug>-01"],
       "native_task_id": null,
@@ -159,7 +147,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
       "title": "Back-pressure gate",
       "description": "Run all five gate checks per references/gate-task-template.md.",
       "type": "GATE",
-      "role_hint": "hyperteam-reviewer",
+      "skills": [],
       "status": "pending",
       "blocked_by": ["<all FEAT and DOC task IDs>"],
       "native_task_id": null,
@@ -184,7 +172,7 @@ Rules:
 - All FEAT tasks: `"reviewed": false`.
 - Task order: FEAT (spec order) → DOC (spec order) → GATE.
 - `blocked_by` arrays: exact task ID strings from Step 3.
-- `role_hint` per Step 5b.
+- `skills` arrays: from Step 1 annotation parsing (`skills: none` → `[]`).
 
 **After writing, per issue in `metadata.source_issues` (skip if null/empty):**
 

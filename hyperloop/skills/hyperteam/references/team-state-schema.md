@@ -52,7 +52,7 @@ Array of task objects. Each represents one unit of work from PRD DAG or gate rem
 | `title`          | string                  |         | Short human-readable title.                                                                                                                                                                                                              |
 | `description`    | string                  |         | Full task description including acceptance criteria.                                                                                                                                                                                     |
 | `type`           | string                  |         | One of: `"FEAT"`, `"DOC"`, `"GATE"`.                                                                                                                                                                                                   |
-| `role_hint`      | string                  |         | Agent to claim this task. FEAT/DOC tasks: `"hyperteam-worker"`. GATE tasks: `"hyperteam-reviewer"`. No specialist role hints — domain knowledge loaded via `skills:` array at claim time.                                    |
+| `skills`         | array of string         | `[]`    | Skills loaded by worker at claim time (names from `worker-skills/`). `[]` for no-skill steps (config, env setup, gate).                                                                                                                 |
 | `status`         | string                  |         | One of: `"pending"`, `"in_progress"`, `"completed"`, `"validated"`, `"failed"`, `"blocked"`.                                                                                                                                           |
 | `blocked_by`     | array of string         |         | IDs of tasks that must reach `"validated"` (FEAT) or `"completed"` (DOC) before this task unblocks.                                                                                                                                     |
 | `native_task_id` | string \| null          | `null`  | UUID from `TaskCreate` for corresponding native task. Cleared to `null` on resume (re-seeded on start).                                                                                                                                  |
@@ -88,7 +88,7 @@ Pending task (not yet started):
   "title": "Implement AuthService business logic",
   "description": "As a developer, I want ...\n\nAcceptance Criteria:\n- [ ] ...",
   "type": "FEAT",
-  "role_hint": "hyperteam-worker",
+  "skills": ["tdd", "python"],
   "status": "pending",
   "blocked_by": ["FEAT-user-auth-01"],
   "native_task_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -109,7 +109,7 @@ Completed task (reviewer PASS):
   "title": "Scaffold UserAuth model and AuthService API stubs",
   "description": "As a developer, I want ...\n\nAcceptance Criteria:\n- [ ] ...",
   "type": "FEAT",
-  "role_hint": "hyperteam-worker",
+  "skills": ["api-scaffold"],
   "status": "validated",
   "blocked_by": [],
   "native_task_id": null,
@@ -130,7 +130,7 @@ Failed task (reviewer FAIL):
   "title": "Add authentication end-to-end tests",
   "description": "As a developer, I want ...\n\nAcceptance Criteria:\n- [ ] ...",
   "type": "FEAT",
-  "role_hint": "hyperteam-worker",
+  "skills": ["tdd", "python"],
   "status": "completed",
   "blocked_by": ["FEAT-user-auth-02"],
   "native_task_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
@@ -151,7 +151,7 @@ DOC task (no review step):
   "title": "Document AuthService public API",
   "description": "As a developer, I want ...",
   "type": "DOC",
-  "role_hint": "hyperteam-worker",
+  "skills": ["tech-writing"],
   "status": "completed",
   "blocked_by": ["FEAT-user-auth-01"],
   "native_task_id": null,
@@ -190,7 +190,7 @@ Integer. Starts at `0` when file first written. Incremented by 1 each time gate 
       "title": "Scaffold UserAuth model and AuthService API stubs",
       "description": "As a developer, I want ...",
       "type": "FEAT",
-      "role_hint": "hyperteam-worker",
+      "skills": ["api-scaffold"],
       "status": "validated",
       "blocked_by": [],
       "native_task_id": null,
@@ -206,7 +206,7 @@ Integer. Starts at `0` when file first written. Incremented by 1 each time gate 
       "title": "Back-pressure gate check",
       "description": "Run all five gate checks per references/gate-task-template.md.",
       "type": "GATE",
-      "role_hint": "hyperteam-reviewer",
+      "skills": [],
       "status": "pending",
       "blocked_by": ["FEAT-user-auth-01"],
       "native_task_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",

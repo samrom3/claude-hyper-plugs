@@ -110,7 +110,7 @@ ______________________________________________________________________
 
 1. Read `plans/<branch>-team-state.json`.
 2. Count tasks where `status: pending` AND `blocked_by` is empty (or all listed blockers already terminal). Call this count `N`.
-3. Clamp: `N = min(max(N, 1), 4)`.
+3. Clamp to `M`: `M = min(max(N, 1), 4)`.
 
 ### Step 2 — Create the team
 
@@ -128,7 +128,8 @@ For every task in `team-state.json` with `status: pending`:
    ---
    id: <task_id>
    type: <FEAT|DOC|GATE>
-   role_hint: <role_hint>
+   skills:
+     - <skill_name>
    blocked_by:
      - <blocker_id_1>
      - <blocker_id_2>
@@ -147,7 +148,7 @@ Send broadcast `SendMessage` to team:
 > State file: `plans/<branch>-team-state.json`
 > Progress log: `plans/<branch>-progress.txt`
 >
-> All workers: claim tasks from native task list. Parse YAML front-matter in each task's description for `role_hint: hyperteam-worker` and `blocked_by`. Load `skills:` listed in task front-matter via `Skill` tool before beginning work. Resolve blockers via `team-state.json` (blocker terminal when status `validated` or `completed`).
+> All workers: claim tasks from native task list. Parse YAML front-matter in each task's description for `type` (FEAT or DOC) and `blocked_by`. Load `skills:` listed in task front-matter via `Skill` tool before beginning work. Resolve blockers via `team-state.json` (blocker terminal when status `validated` or `completed`).
 >
 > Reviewer: begin scanning `team-state.json` for completed FEAT tasks with `reviewed: false` immediately.
 

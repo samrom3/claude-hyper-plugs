@@ -46,7 +46,7 @@ checks:
   - check: adr-sync                       result: PASS | FAIL
   - check: pre-commit                     result: PASS | FAIL
   - check: acceptance-criteria            result: PASS | FAIL
-  - check: success-metrics               result: PASS | FAIL
+  - check: success-metrics                result: PASS | FAIL
 ```
 
 ---
@@ -70,8 +70,8 @@ No such tasks → go to **Step 7 — Review Idle**.
 
 ### Step 3 — Find the relevant commit
 
-Use `git log` to find commit(s) for this task. Match `[Story-ID] - [Story Title]` created after
-`completed_at`.
+Use `git log` to find commit(s) for this task. Match `[Step-ID] - [Step Title]` created after
+`started_at`.
 
 ### Step 4 — Review committed code
 
@@ -177,8 +177,7 @@ Run all five in order.
 
 ### Gate Step 4 — On GATE FAIL
 
-1. Write remediation entries to `team-state.json` (new tasks: `status: pending`, `role_hint`,
-   `blocked_by`). Do **not** create native tasks yourself.
+1. Write remediation entries to `team-state.json` (new tasks: `status: pending`, `skills`, `blocked_by`). Do **not** create native tasks yourself.
 2. Increment `gate_iterations` in `team-state.json`.
 3. Append gate summary to `progress_path` (see gate-task-template.md for format).
 4. `SendMessage` lead with structured result:
