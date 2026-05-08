@@ -133,6 +133,8 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
 
 Verify: no step contradicts another; no step conflicts with codebase findings from Step 2. Conflict found → raise with user via `AskUserQuestion` and resolve before saving.
 
+**Open-questions gate:** Every item in `## Open Questions` must be: answered inline, explicitly deferred (note rationale in item), or removed. Any unresolved item remaining → raise via `AskUserQuestion` and resolve before saving.
+
 > **Do NOT start implementing. Create spec only.**
 
 ______________________________________________________________________
@@ -150,3 +152,4 @@ ______________________________________________________________________
 - [ ] Each step has `> skills:` annotation (`skills: none` if no rules match)
 - [ ] Old `plans/<branch>-session-spec.md` archived to `plans/archive/` if existed
 - [ ] Final conflict sweep complete — no intra-spec contradictions, no codebase conflicts
+- [ ] All `## Open Questions` items answered, deferred with rationale, or removed
