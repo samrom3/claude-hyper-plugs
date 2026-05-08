@@ -2,7 +2,7 @@
 
 AI-augmented development for engineers who stay in the loop.
 
-Hyperloop interviews you to build a PRD (with requirement analysis and conflict resolution), then
+Hyperloop interviews you to build a session-spec (with requirement analysis and conflict resolution), then
 runs an autonomous specialist agent team with back-pressure gates to implement it — while you
 review, guide, and approve at every milestone.
 
@@ -30,17 +30,17 @@ See the [plugin marketplaces documentation](https://code.claude.com/docs/en/plug
 
 ## Usage
 
-Hyperloop is a two-step process. First you build a PRD through a structured interview, then the agent team executes it autonomously against a back-pressure gate:
+Hyperloop is a two-step process. First you build a session-spec through a structured interview, then the agent team executes it autonomously against a back-pressure gate:
 
 ```
                     ┌─────────────────────────────────────────────────────────┐
-  Step 1 (/prd)     │                                                         │
-                    │   You ──► Interview ──► Conflict ──► plans/<branch>     │
-                    │            (3 phases)    analysis      -prd.md          │
+  Step 1            │                                                         │
+  (/session-spec)   │   You ──► Interview ──► Conflict ──► plans/<branch>     │
+                    │            (1 pass)      analysis    -session-spec.md   │
                     └──────────────────────────────┬──────────────────────────┘
-                                                   │ PRD
+                                                   │ session-spec
                     ┌──────────────────────────────▼──────────────────────────┐
-  Step 2            │              Lead parses PRD → task DAG                 │
+  Step 2            │         Lead parses session-spec → task DAG             │
   (/hyperteam)      │                                                         │
                     │   ┌─────────┐   ┌─────────┐   ┌─────────────┐          │
                     │   │Worker A │   │Worker B │   │ Tech Writer │  . . .   │
@@ -57,42 +57,42 @@ Hyperloop is a two-step process. First you build a PRD through a structured inte
                     └─────────────────────────────────────────────────────────┘
 ```
 
-### 1. Generate a PRD
+### 1. Generate a session-spec
 
 ```
-/hyperloop:prd Add user authentication with OAuth2 support
+/hyperloop:session-spec Add user authentication with OAuth2 support
 ```
 
 or from a seedling document:
 
 ```
-/hyperloop:prd plans/auth-seedling.md
+/hyperloop:session-spec plans/auth-seedling.md
 ```
 
 or linked to a GitHub issue:
 
 ```
-/hyperloop:prd https://github.com/owner/repo/issues/42 Add user authentication
+/hyperloop:session-spec https://github.com/owner/repo/issues/42 Add user authentication
 ```
 
-The PRD skill will:
+The session-spec skill will:
 
-- Interview you to gather requirements (3 phases of refinement)
+- Interview you to gather requirements (single focused round)
 - Cross-check against existing ADRs and codebase patterns
 - Surface conflicts and ambiguities before any code is written
-- Output `plans/<branch>-prd.md`
+- Output `plans/<branch>-session-spec.md`
 
-You can generate multiple PRDs upfront — they accumulate in `plans/` and can be executed in any order.
+You can generate multiple session-specs upfront — they accumulate in `plans/` and can be executed in any order.
 
 #### GitHub issue linking
 
-If you include a GitHub issue URL anywhere in your `/prd` arguments, hyperloop will:
+If you include a GitHub issue URL anywhere in your `/session-spec` arguments, hyperloop will:
 
 1. **Assign the issue** — runs `gh issue edit <N> --repo <owner>/<repo> --add-assignee @me`
    immediately, so the issue is claimed as soon as PRD work begins. If `gh` is unauthenticated or
    the assignment fails for any reason, a warning is printed but PRD creation continues.
 
-1. **Record the reference in the PRD** — writes a metadata table immediately after the PRD's H1
+1. **Record the reference in the spec** — writes a metadata table immediately after the spec's H1
    heading:
 
    ```markdown
@@ -102,11 +102,11 @@ If you include a GitHub issue URL anywhere in your `/prd` arguments, hyperloop w
    | ------------ | ------------------ |
    | Source Issue | owner/repo#42      |
 
-   ## 1. Introduction/Overview
+   ## Goal
    ```
 
 1. **Propagate to `team-state.json`** — Phase 1 reads the metadata table and stores
-   `metadata.source_issue` in `team-state.json` as the authoritative runtime value.
+   `metadata.source_issues` in `team-state.json` as the authoritative runtime value.
 
 1. **Auto-close via PR** — when the gate passes and a PR is created, Phase 4 appends
    `Closes #N` (same-repo) or `Closes https://github.com/owner/repo/issues/N` (cross-repo) to
@@ -120,13 +120,13 @@ If you include a GitHub issue URL anywhere in your `/prd` arguments, hyperloop w
 /hyperloop:hyperteam
 ```
 
-At startup, `/hyperloop:hyperteam` scans `plans/` for `*-prd.md` files and prompts you to select one:
+At startup, `/hyperloop:hyperteam` scans `plans/` for `*-session-spec.md` files and prompts you to select one:
 
-- If only one incomplete PRD exists, it confirms and auto-selects it.
-- If multiple incomplete PRDs exist, it presents a numbered list for you to choose from.
-- In-progress PRDs (those with an existing `team-state.json`) are flagged with a warning so you don't accidentally start a duplicate session.
+- If only one incomplete session-spec exists, it confirms and auto-selects it.
+- If multiple incomplete session-specs exist, it presents a numbered list for you to choose from.
+- In-progress session-specs (those with an existing `team-state.json`) are flagged with a warning so you don't accidentally start a duplicate session.
 
-After PRD selection, hyperloop will:
+After session-spec selection, hyperloop will:
 
 - Parse the PRD into a dependency-ordered task DAG
 - Show you the plan and wait for approval
@@ -145,17 +145,17 @@ where it stopped.
 Each `/hyperloop:hyperteam` session creates its own agent team via `TeamCreate`, which
 automatically scopes the native task list by team name. This means you can run multiple sessions
 in parallel — open separate Claude Code sessions, then run `/hyperloop:hyperteam` in each, and select a
-different PRD in each session. Sessions are fully isolated because each team has its own task list
+different session-spec in each session. Sessions are fully isolated because each team has its own task list
 at `~/.claude/tasks/{team-name}/`.
 
 ## Architecture
 
 ### Skills
 
-| Skill                  | Purpose                                                                    |
-| ---------------------- | -------------------------------------------------------------------------- |
-| `/hyperloop:prd`       | Multi-phase PRD generator with conflict detection and requirement analysis |
-| `/hyperloop:hyperteam` | Converts a PRD into an autonomous agent team with back-pressure gates      |
+| Skill                     | Purpose                                                                             |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| `/hyperloop:session-spec` | Single-pass session-spec generator with conflict detection and requirement analysis |
+| `/hyperloop:hyperteam`    | Converts a session-spec into an autonomous agent team with back-pressure gates      |
 
 ### Agents
 
@@ -225,9 +225,9 @@ npm run check         # both (use this as the verification command)
 `` `
 ````
 
-### Overriding the PRD template
+### Overriding the session-spec template
 
-Place your own `example-prd.md` at `.claude/skills/prd/references/example-prd.md` in your
+Place your own `example-session-spec.md` at `.claude/skills/session-spec/references/example-session-spec.md` in your
 project. Project-level files take precedence over plugin files.
 
 ### Project-specific agents

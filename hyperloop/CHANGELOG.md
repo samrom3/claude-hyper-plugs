@@ -37,6 +37,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `references/example-prd.md` guidance updated to show both the table-present and table-absent
   PRD states.
 
+## [2.0.0] - 2026-05-07
+
+### Added
+
+- `session-spec` skill — single-pass replacement for `prd`: one interview round, step→verify
+  output format, adversarial conflict detection preserved.
+- Gate discretion in `/hyperteam`: recommends skipping back-pressure gate for small specs
+  (≤3 steps, no cross-step deps, human in verification loop). User can override either way.
+- ADR-003 supersedes ADR-002 — updates contract writer from `prd` to `session-spec` skill and
+  first section heading from `## 1. Introduction/Overview` to `## Goal`.
+
+### Changed
+
+- Output files renamed: `plans/<branch>-session-spec.md` (was `-prd.md`).
+- `/hyperteam` warns on legacy `-prd.md` files — will not process silently.
+- All internal cross-references updated: ADR-001, ADR-002 (superseded), README, skill tables,
+  reference files.
+
+### Removed
+
+- `prd` skill (breaking). Use `/session-spec` going forward.
+
 ## [1.3.1] - 2026-05-07
 
 ### Changed
