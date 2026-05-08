@@ -100,8 +100,11 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    - Python code involved → add `hyperwork-python`
    - TypeScript code involved → add `hyperwork-typescript`
    - Step implements logic against existing contracts (not pure scaffolding) → add `hyperwork-tdd`
-   - Step generates stubs, schemas, or API surface → add `hyperwork-api-scaffold`
    - Step is docs, README, changelog, ADR, or user-facing writing → add `hyperwork-tech-writing`
+   - `hyperwork-api-scaffold` as a **standalone** step only when BOTH hold:
+     (a) **No existing structure** — target modules/files absent and shape indeterminate from existing code.
+     (b) **Parallelism unlock** — scaffolded stubs allow ≥2 workers to proceed independently in next wave; if work remains serial after scaffolding, skip standalone step.
+     **Gate not met** → bundle structure-definition into first FEAT task requiring it: add `hyperwork-api-scaffold` to that task's `skills:` array + note in description that worker creates structure inline before proceeding.
 
    No matches → `skills: none` (explicit sentinel; worker skips loading).
 
