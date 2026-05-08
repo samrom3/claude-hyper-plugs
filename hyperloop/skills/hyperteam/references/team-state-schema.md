@@ -44,7 +44,7 @@
 
 ## `tasks`
 
-Array of task objects. Each represents one unit of work from PRD DAG or gate remediation.
+Array of task objects. Each represents one unit of work from session-spec DAG or gate remediation.
 
 | Field            | Type                    | Default | Description                                                                                                                                                                                                                              |
 | ---------------- | ----------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
