@@ -75,7 +75,14 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
 
 **Text description mode:** ask 2–3 questions on problem/goal, scope/boundaries, success criteria.
 
-### Step 4 — Generate Spec
+### Step 4 — Pre-Generation Checkpoint
+
+1. Summarize in 1–3 sentences: goals gathered, scope boundaries, conflicts resolved in Steps 2–3.
+2. `AskUserQuestion`: "Proceed to generate spec, or refine further?"
+   - **Proceed** → continue to Step 5.
+   - **Refine** → return to Step 3 for one additional targeted interview round. Cap: max 2 refinement iterations total — if Refine selected twice, proceed to Step 5 regardless on next pass.
+
+### Step 5 — Generate Spec
 
 1. If `plans/<branch>-session-spec.md` exists → move to `plans/archive/<branch>-session-spec.md` before writing.
 2. Write `plans/<branch>-session-spec.md` in step→verify format per `references/example-session-spec.md`.
@@ -129,7 +136,7 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
 
    > **Reading note for agents:** Metadata table (if present) appears **immediately after H1** and **before first `##` section**. Parsers: locate H1, scan forward collecting all `| Source Issue |` rows before `##`; none found → `source_issues` is `null`.
 
-### Step 5 — Final Conflict Sweep
+### Step 6 — Final Conflict Sweep
 
 Verify: no step contradicts another; no step conflicts with codebase findings from Step 2. Conflict found → raise with user via `AskUserQuestion` and resolve before saving.
 
@@ -146,6 +153,7 @@ ______________________________________________________________________
 - [ ] Input mode detected: seedling or text description
 - [ ] `CLAUDE.md` ADR locations, ADR dirs, project source dirs searched for conflicts (Step 2)
 - [ ] Interview complete: ≤3 `AskUserQuestion` calls; ≥1 addressed Step 2 conflicts (if any)
+- [ ] Pre-generation checkpoint (Step 4) presented; user selected Proceed, or refinement cap (2 iterations) reached
 - [ ] `<source_issues>` non-null → metadata table present immediately after H1 and before `## Goal`; null → no table
 - [ ] Spec uses `## Goal / ## Context / ## Non-goals / ## Steps / ## Open Questions` structure
 - [ ] Each step has `**Acceptance Criteria:**` checklist with ≥1 concrete, independently falsifiable `- [ ]` item
