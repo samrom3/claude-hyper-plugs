@@ -90,24 +90,24 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
 
    Apply all rules that match.
 
-   - Python code involved → add `python`
-   - TypeScript code involved → add `typescript`
-   - Step implements logic against existing contracts (not pure scaffolding) → add `tdd`
-   - Step generates stubs, schemas, or API surface → add `api-scaffold`
-   - Step is docs, README, changelog, ADR, or user-facing writing → add `tech-writing`
+   - Python code involved → add `hyperwork-python`
+   - TypeScript code involved → add `hyperwork-typescript`
+   - Step implements logic against existing contracts (not pure scaffolding) → add `hyperwork-tdd`
+   - Step generates stubs, schemas, or API surface → add `hyperwork-api-scaffold`
+   - Step is docs, README, changelog, ADR, or user-facing writing → add `hyperwork-tech-writing`
 
    No matches → `skills: none` (explicit sentinel; worker skips loading).
 
    Each step annotation (embedded in spec body, parsed by hyperteam Phase 1):
    ```
-   > skills: tdd, python
+   > skills: hyperwork-tdd, hyperwork-python
    ```
 
    Example step with skill annotation:
    ```markdown
    ### STEP-auth-01: Implement JWT validation middleware
 
-   > skills: tdd, python
+   > skills: hyperwork-tdd, hyperwork-python
 
    **Acceptance Criteria:**
    - [ ] `src/auth/middleware.py` exists with `validate_jwt(token: str) -> Claims` function
@@ -121,8 +121,8 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    id: FEAT-auth-01
    type: FEAT
    skills:
-     - tdd
-     - python
+     - hyperwork-tdd
+     - hyperwork-python
    blocked_by: []
    ---
    ```

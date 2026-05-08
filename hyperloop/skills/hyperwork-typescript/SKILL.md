@@ -1,12 +1,12 @@
 ---
-name: typescript
-description: TypeScript tooling for impl tasks — vitest/ts-jest, tsc type checking, tsconfig awareness. Compose with tdd skill for methodology.
+name: hyperwork-typescript
+description: TypeScript tooling for impl tasks — vitest/ts-jest, tsc type checking, tsconfig awareness. Compose with hyperwork-tdd skill for methodology.
 user-invocable: false
 ---
 
 # TypeScript
 
-**Use:** TypeScript impl tasks. Load with `tdd` skill: `skills: [tdd, typescript]`.
+**Use:** TypeScript impl tasks. Load with `hyperwork-tdd` skill: `skills: [hyperwork-tdd, hyperwork-typescript]`.
 
 ## Toolchain
 

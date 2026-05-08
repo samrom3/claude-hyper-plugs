@@ -1,5 +1,5 @@
 ---
-name: tech-writing
+name: hyperwork-tech-writing
 description: Technical writing — READMEs, changelogs, ADRs, docstrings, and user-facing docs. Match repo style, compress prose, preserve structure.
 user-invocable: false
 ---

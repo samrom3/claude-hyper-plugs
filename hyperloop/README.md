@@ -167,17 +167,17 @@ at `~/.claude/tasks/{team-name}/`.
 
 ### Worker Skills Library
 
-Workers load domain skills at task-claim time via the `Skill` tool. Skills are assigned per task in the session-spec and stored in task YAML front-matter (`skills:` field). Skill files live in `hyperloop/skills/worker-skills/`.
+Workers load domain skills at task-claim time via the `Skill` tool. Skills are assigned per task in the session-spec and stored in task YAML front-matter (`skills:` field). Skill files live in `hyperloop/skills/hyperwork-*/`.
 
-| Skill          | Purpose                                                                           |
-| -------------- | --------------------------------------------------------------------------------- |
-| `tdd`          | Language-agnostic TDD discipline — red/green/refactor. Fallback for unknown stack |
-| `python`       | Python tooling: pytest, uv, mypy, conftest patterns. Compose with `tdd`           |
-| `typescript`   | TypeScript tooling: tsc, vitest/ts-jest, tsconfig. Compose with `tdd`             |
-| `api-scaffold` | API endpoint stubs, schema generation, contract-first design                      |
-| `tech-writing` | Docs, README, changelog, ADR, user-facing writing                                 |
+| Skill                    | Purpose                                                                           |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| `hyperwork-tdd`          | Language-agnostic TDD discipline — red/green/refactor. Fallback for unknown stack |
+| `hyperwork-python`       | Python tooling: pytest, uv, mypy, conftest patterns. Compose with `hyperwork-tdd` |
+| `hyperwork-typescript`   | TypeScript tooling: tsc, vitest/ts-jest, tsconfig. Compose with `hyperwork-tdd`   |
+| `hyperwork-api-scaffold` | API endpoint stubs, schema generation, contract-first design                      |
+| `hyperwork-tech-writing` | Docs, README, changelog, ADR, user-facing writing                                 |
 
-Skills compose: `skills: [tdd, python]` for Python impl, `skills: [tdd, typescript]` for TypeScript, `skills: [tdd]` as universal fallback.
+Skills compose: `skills: [hyperwork-tdd, hyperwork-python]` for Python impl, `skills: [hyperwork-tdd, hyperwork-typescript]` for TypeScript, `skills: [hyperwork-tdd]` as universal fallback.
 
 ### State management
 
@@ -219,12 +219,12 @@ and take precedence when names overlap.
 
 **Key architectural differences in hyperloop:**
 
-|                           | hyperworker                                    | hyperloop                                                                                                            |
-| ------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **Language support**      | Pick the language-specific version of the repo | Single install; worker-skills library covers Python, TypeScript, API scaffold, docs — works in mixed-stack repos     |
-| **Requirement gathering** | Prompt-driven                                  | Structured user interview with explicit requirement analysis and conflict deconfliction before any code is written   |
-| **Back-pressure gate**    | Intended but consistently absent in most forks | First-class GATE tasks with a dedicated reviewer agent; the lead blocks new work until the gate clears               |
-| **Re-entrant execution**  | Single run                                     | Designed for mid-run quota exhaustion: resume picks up exactly where the last session left off via `team-state.json` |
+|                           | hyperworker                                    | hyperloop                                                                                                              |
+| ------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Language support**      | Pick the language-specific version of the repo | Single install; `hyperwork-*` skill library covers Python, TypeScript, API scaffold, docs — works in mixed-stack repos |
+| **Requirement gathering** | Prompt-driven                                  | Structured user interview with explicit requirement analysis and conflict deconfliction before any code is written     |
+| **Back-pressure gate**    | Intended but consistently absent in most forks | First-class GATE tasks with a dedicated reviewer agent; the lead blocks new work until the gate clears                 |
+| **Re-entrant execution**  | Single run                                     | Designed for mid-run quota exhaustion: resume picks up exactly where the last session left off via `team-state.json`   |
 
 ## License
 

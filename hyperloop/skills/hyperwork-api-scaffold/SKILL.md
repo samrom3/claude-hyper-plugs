@@ -1,5 +1,5 @@
 ---
-name: api-scaffold
+name: hyperwork-api-scaffold
 description: API scaffolding — generate route/handler/schema/test skeletons for new endpoints, following existing project patterns.
 user-invocable: false
 ---

@@ -1,6 +1,6 @@
 ---
-name: tdd
-description: Language-agnostic TDD discipline — red/green/refactor cycle. Fallback for unknown stack. Compose with language skills (python, typescript) for tooling specifics.
+name: hyperwork-tdd
+description: Language-agnostic TDD discipline — red/green/refactor cycle. Fallback for unknown stack. Compose with language skills (hyperwork-python, hyperwork-typescript) for tooling specifics.
 user-invocable: false
 ---
 

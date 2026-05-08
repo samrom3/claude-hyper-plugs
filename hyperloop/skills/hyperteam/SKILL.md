@@ -116,7 +116,7 @@ ______________________________________________________________________
 
 Call `TeamCreate` with:
 - Team name: `<branch>`
-- Teammates: 1 `hyperteam-lead`, `N` `hyperteam-worker` instances, 1 `hyperteam-reviewer`
+- Teammates: 1 `hyperteam-lead`, `M` `hyperteam-worker` instances, 1 `hyperteam-reviewer`
 - Prompt includes: branch name, paths to `plans/<branch>-team-state.json`, `plans/<branch>-progress.txt`, `plans/<branch>-session-spec.md`
 
 ### Step 3 — Seed the native task list

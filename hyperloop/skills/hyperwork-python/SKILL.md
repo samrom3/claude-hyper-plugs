@@ -1,12 +1,12 @@
 ---
-name: python
-description: Python tooling for impl tasks — pytest patterns, uv toolchain, mypy, fixtures. Compose with tdd skill for methodology.
+name: hyperwork-python
+description: Python tooling for impl tasks — pytest patterns, uv toolchain, mypy, fixtures. Compose with hyperwork-tdd skill for methodology.
 user-invocable: false
 ---
 
 # Python
 
-**Use:** Python impl tasks. Load with `tdd` skill: `skills: [tdd, python]`.
+**Use:** Python impl tasks. Load with `hyperwork-tdd` skill: `skills: [hyperwork-tdd, hyperwork-python]`.
 
 ## Toolchain
 

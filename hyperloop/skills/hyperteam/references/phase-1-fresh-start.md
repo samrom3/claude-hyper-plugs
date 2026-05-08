@@ -131,7 +131,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
       "title": "<step title>",
       "description": "<full step text>",
       "type": "DOC",
-      "skills": ["tech-writing"],
+      "skills": ["hyperwork-tech-writing"],
       "status": "pending",
       "blocked_by": ["FEAT-<slug>-01"],
       "native_task_id": null,

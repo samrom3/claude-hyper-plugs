@@ -66,6 +66,13 @@ Plugin agents **must** live directly in `agents/` — no subdirectories. Nested 
 
 > User-added agents (in `.claude/agents/`) not subject to this rule.
 
+### Skill directory — always flat, prefixed
+
+Plugin skills **must** live directly in `skills/<name>/SKILL.md` — no subdirectories. Nested skills are not loaded by Claude Code. Prefix skill names with the plugin identifier to avoid collisions across plugins.
+
+- Correct: `hyperloop/skills/hyperwork-tdd/SKILL.md`
+- Wrong: `hyperloop/skills/worker-skills/tdd/SKILL.md`
+
 ### Versioning — semantic versioning
 
 | Change type                                        | Version bump | Example           |
@@ -105,7 +112,3 @@ All skill/reference files must be compressed before commit. Level depends on fil
 **Preserve always:** numbered step sequence, code blocks, YAML front-matter, table structure in spec/contract files, quoted error strings, conditional logic branches, AC lists.
 
 **Review reminder:** compress before committing new/edited skill files. PRs adding skill/reference content → include before/after line counts in PR body.
-
-## Hyperteam Task Routing
-
-Task type drives agent routing: FEAT/DOC → worker, GATE → reviewer. No `role_hint` field — type is the source of truth. Skill assignment via `skills:` array in task YAML front-matter — entries from `hyperloop/skills/worker-skills/` library. Use `skills: none` sentinel in spec annotations for no-skill steps (config, env setup, etc.).
