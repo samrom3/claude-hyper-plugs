@@ -1,6 +1,6 @@
 ---
 name: hyperteam
-description: "Reads a session-spec, derives a task DAG, gets user approval, writes team-state.json, seeds the native task list, creates a specialist team, and monitors until the back-pressure gate passes. Replaces the /session-spec + /hyperworker two-step workflow."
+description: "Reads a session-spec, derives a task DAG, gets user approval, writes team-state.json, seeds the native task list, creates a specialist team, and monitors until the back-pressure gate passes. Replaces the legacy /prd + /hyperworker two-step workflow."
 user-invocable: true
 disable-model-invocation: true
 ---

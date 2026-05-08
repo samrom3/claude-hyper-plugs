@@ -4,7 +4,7 @@ Taken when `plans/<branch>-team-state.json` does **not** exist.
 
 ---
 
-## Step 1 — Read and parse the PRD
+## Step 1 — Read and parse the spec
 
 1. Read `plans/<branch>-session-spec.md` in full.
    > **Metadata table:** If `/session-spec` invoked with GitHub issue URL, metadata table appears **immediately after H1 heading** and **before first `##` section heading**:
@@ -16,31 +16,33 @@ Taken when `plans/<branch>-team-state.json` does **not** exist.
    > ```
    >
    > Locate H1, scan forward collecting all `| Source Issue |` rows before any `##` line. Extract second cell from each matching row → `<source_issues>` list (e.g. `["samrom3/claude-hyper-plugs#13"]`). No rows before first `##` → `<source_issues> = null`.
-2. Extract all developer stories. Headings matching:
-   - `### FEAT-*` — feature impl stories
-   - `### DOC-*` — documentation stories
-3. Per story, capture:
-   - **Title** — heading text after `### ` prefix (strip leading ID if present, e.g. `### FEAT-hyperteam-skill-04: Phase 1` → `Phase 1`)
+2. Extract all steps. Headings matching:
+   - `### STEP-*` — default; maps to FEAT task
+   - `### FEAT-*` — explicit FEAT (also accepted)
+   - `### DOC-*` — documentation task
+3. Per step, capture:
+   - **Type** — `DOC` if heading prefix is `DOC-`; `FEAT` otherwise
+   - **Title** — heading text after `### ` prefix (strip leading prefix+ID if present, e.g. `### STEP-foo-01: Bar` → `Bar`)
    - **Description** — all body text under heading until next `###`
-4. Preserve PRD story order — this is dependency order.
+4. Preserve spec step order — this is dependency order.
 
-> **Note:** Scaffold-first pattern applied by `/session-spec` at authoring time. Phase 1 maps each PRD story to exactly one task entry; no re-splitting.
+> **Note:** Scaffold-first pattern applied by `/session-spec` at authoring time. Phase 1 maps each spec step to exactly one task entry; no re-splitting.
 
 ---
 
 ## Step 2 — Assign task IDs
 
-Sequential IDs in PRD order, two-digit zero-padded counters:
+Sequential IDs in spec order, two-digit zero-padded counters:
 
-- FEAT stories → `FEAT-<slug>-01`, `FEAT-<slug>-02`, … (independent counter)
-- DOC stories → `DOC-<slug>-01`, `DOC-<slug>-02`, … (independent counter)
+- FEAT steps (includes `STEP-*` and `FEAT-*`) → `FEAT-<slug>-01`, `FEAT-<slug>-02`, … (independent counter)
+- DOC steps → `DOC-<slug>-01`, `DOC-<slug>-02`, … (independent counter)
 - GATE → `GATE-<slug>-01` (always exactly one, created last)
 
 ---
 
 ## Step 3 — Infer dependencies
 
-1. Build ordered list of all FEAT and DOC task IDs in PRD order.
+1. Build ordered list of all FEAT and DOC task IDs in spec order.
 2. Per task, set `blocked_by` to IDs of tasks appearing **before** it that it logically requires:
    - Each FEAT task blocked by immediately preceding FEAT (linear chain by default).
    - DOC tasks documenting a feature area block FEAT tasks covering same area.
@@ -131,7 +133,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
   "metadata": {
     "branch": "<branch>",
     "slug": "<slug>",
-    "prd_path": "plans/<branch>-session-spec.md",
+    "spec_path": "plans/<branch>-session-spec.md",
     "status": "running",
     "source_issues": "<array from PRD metadata table, or null>",
     "created_at": "<ISO 8601 timestamp>"
@@ -197,7 +199,7 @@ Rules:
 - All tasks: `"status": "pending"`, all timestamp/result fields `null`.
 - All tasks: `"native_task_id": null` — native tasks seeded by Phase 2 Step 3.
 - All FEAT tasks: `"reviewed": false`.
-- Task order: FEAT (PRD order) → DOC (PRD order) → GATE.
+- Task order: FEAT (spec order) → DOC (spec order) → GATE.
 - `blocked_by` arrays: exact task ID strings from Step 3.
 - `role_hint` per Step 5b.
 

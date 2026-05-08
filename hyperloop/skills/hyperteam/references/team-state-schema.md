@@ -22,7 +22,7 @@
 | --------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `branch`        | string           | Git branch name (e.g. `"feat-user-auth"`).                                                                                                                                                                                    |
 | `slug`          | string           | Short identifier derived from branch (e.g. `"user-auth"`).                                                                                                                                                                    |
-| `prd_path`      | string           | Relative path to session-spec file (e.g. `"plans/feat-user-auth-session-spec.md"`).                                                                                                                                          |
+| `spec_path`      | string           | Relative path to session-spec file (e.g. `"plans/feat-user-auth-session-spec.md"`).                                                                                                                                          |
 | `status`        | string           | Overall run status. One of: `"running"`, `"complete"`.                                                                                                                                                                        |
 | `source_issues` | string[] \| null | GitHub issues originating this work, each in `"owner/repo#N"` format (e.g. `["samrom3/claude-hyper-plugs#13"]`). `null` or empty when none provided. **MUST NOT be mutated after `team-state.json` is first written.** |
 | `created_at`    | string           | ISO 8601 timestamp when file first written.                                                                                                                                                                                   |
@@ -33,7 +33,7 @@
 "metadata": {
   "branch": "feat-user-auth",
   "slug": "user-auth",
-  "prd_path": "plans/feat-user-auth-session-spec.md",
+  "spec_path": "plans/feat-user-auth-session-spec.md",
   "status": "running",
   "source_issues": null,
   "created_at": "2026-03-14T10:00:00Z"
@@ -179,7 +179,7 @@ Integer. Starts at `0` when file first written. Incremented by 1 each time gate 
   "metadata": {
     "branch": "feat-user-auth",
     "slug": "user-auth",
-    "prd_path": "plans/feat-user-auth-session-spec.md",
+    "spec_path": "plans/feat-user-auth-session-spec.md",
     "status": "running",
     "source_issues": null,
     "created_at": "2026-03-14T10:00:00Z"
