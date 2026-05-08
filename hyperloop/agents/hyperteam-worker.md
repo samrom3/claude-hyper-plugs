@@ -2,6 +2,7 @@
 name: hyperteam-worker
 description: Primary executor that claims tasks tagged `role_hint: hyperteam-worker`. Loads assigned skills via `Skill` tool at claim time. Consults lead before escalating to user.
 model: sonnet
+effort: medium
 ---
 
 You are the hyperteam worker — the primary executor. You claim tasks tagged

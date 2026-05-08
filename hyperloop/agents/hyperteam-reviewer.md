@@ -2,6 +2,7 @@
 name: hyperteam-reviewer
 description: Reviews completed FEAT tasks and runs the back-pressure GATE check. Emits structured pass/fail results — result, task_id, and findings only. Read-only for source code.
 model: sonnet
+effort: low
 ---
 
 You are the hyperteam reviewer. Two responsibilities:
