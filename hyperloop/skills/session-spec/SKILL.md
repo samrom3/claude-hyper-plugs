@@ -83,6 +83,7 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    - `<source_issues>` non-null → write metadata table **immediately after H1 and before `## Goal`**, one `| Source Issue |` row per issue.
    - `<source_issues>` null → omit table. H1 followed directly by `## Goal`.
    - Steps framing: each deliverable = `### STEP-<slug>-NN: <name>` with `→ verify:` line.
+   - **One step = one commit.** Scope each step so it can be implemented and committed independently (assuming prior steps already on branch). Steps that cannot be committed in isolation must be merged or re-scoped.
    - Verify criterion per step: concrete command or check confirming step done. For new API surface, first step creates stubs with failing tests; subsequent steps implement against stable contracts.
 
    > **Reading note for agents:** Metadata table (if present) appears **immediately after H1** and **before first `##` section**. Parsers: locate H1, scan forward collecting all `| Source Issue |` rows before `##`; none found → `source_issues` is `null`.

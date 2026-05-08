@@ -76,6 +76,9 @@ Fix any failures reported. Re-run until it passes cleanly in a single pass.
    [Story-ID] - [Story Title]
    ```
    Stage all relevant files. Never skip hooks or bypass signing.
+   **If commit fails for any reason (GPG, hook, network):** treat as unresolvable blocker —
+   `TaskUpdate` native task back to `pending`, set `status: failed` in `team-state.json` with
+   `reason` note, `SendMessage` lead with error, **stop**. Do NOT proceed to the next task.
 2. `TaskUpdate` the native task to `completed`.
 3. Update `team-state.json`:
    - `status: completed`
