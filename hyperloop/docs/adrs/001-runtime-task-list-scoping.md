@@ -55,7 +55,7 @@ ______________________________________________________________________
   no shared config file to clobber.
 - **No manual configuration required.** Users don't need to set any environment variables.
   `TeamCreate` handles scoping internally.
-- **`/session-spec` is decoupled from `/hyperteam`.** Users can create several PRDs upfront and run
+- **`/session-spec` is decoupled from `/hyperteam`.** Users can create several session-specs upfront and run
   `/hyperteam` against any of them in any order, in any session.
 - **Correct mental model.** The architecture now reflects how Agent Teams actually work, rather
   than layering an unrelated env var mechanism on top.
@@ -63,7 +63,7 @@ ______________________________________________________________________
 **Neutral:**
 
 - The `plans/<branch>` symlink (created by `/session-spec`) is still useful for local file visibility.
-  Hyperteam verifies the symlink exists after PRD selection and creates it if missing.
+  Hyperteam verifies the symlink exists after spec selection and creates it if missing.
 
 **Negative / Trade-offs:**
 

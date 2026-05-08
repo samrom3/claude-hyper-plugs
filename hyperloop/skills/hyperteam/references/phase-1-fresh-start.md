@@ -135,7 +135,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
     "slug": "<slug>",
     "spec_path": "plans/<branch>-session-spec.md",
     "status": "running",
-    "source_issues": "<array from PRD metadata table, or null>",
+    "source_issues": "<array from spec metadata table, or null>",
     "created_at": "<ISO 8601 timestamp>"
   },
   "tasks": [
