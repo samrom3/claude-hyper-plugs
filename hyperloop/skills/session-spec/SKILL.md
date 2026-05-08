@@ -90,18 +90,13 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
 
    All steps: `role_hint: hyperteam-worker`. No specialist role_hints.
 
-   Assign `skills:` using this mapping (can assign multiple):
+   Apply all rules that match. Zero skills is valid (e.g. pure config, env setup, non-code steps).
 
-   | Task type / signals                                | skills                        |
-   | -------------------------------------------------- | ----------------------------- |
-   | Python implementation, tests, refactor             | `tdd`, `python`               |
-   | TypeScript implementation, tests, refactor         | `tdd`, `typescript`           |
-   | API scaffold, endpoint stub, schema generation     | `api-scaffold`                |
-   | Docs, README, changelog, ADR, user-facing writing  | `tech-writing`                |
-   | Mixed Python + API scaffold                        | `tdd`, `python`, `api-scaffold` |
-   | Unknown / untyped / general                        | `tdd`                         |
-
-   Default fallback: `tdd` for any step not matching the table above.
+   - Python code involved → add `python`
+   - TypeScript code involved → add `typescript`
+   - Step implements logic against existing contracts (not pure scaffolding) → add `tdd`
+   - Step generates stubs, schemas, or API surface → add `api-scaffold`
+   - Step is docs, README, changelog, ADR, or user-facing writing → add `tech-writing`
 
    Each step annotation (embedded in spec body, parsed by hyperteam Phase 1):
    ```
