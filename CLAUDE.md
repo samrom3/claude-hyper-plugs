@@ -61,10 +61,18 @@ pre-commit run --all-files    # trailing whitespace, EOF fixer, YAML check, merg
 
 Plugin agents **must** live directly in `agents/` — no subdirectories. Nested agents are invisible to discovery.
 
-- Correct: `hyperloop/agents/hyperteam-py-builder.md`
-- Wrong: `hyperloop/agents/packs/python/hyperteam-py-builder.md`
+- Correct: `hyperloop/agents/hyperteam-worker.md`
+- Wrong: `hyperloop/agents/packs/hyperteam-worker.md`
 
 > User-added agents (in `.claude/agents/`) not subject to this rule.
+
+### Skill directory — always flat, prefixed
+
+Plugin skills **must** live directly in `skills/<name>/SKILL.md` — no subdirectories. Nested skills not loaded by Claude Code.
+Prefix skill names with the plugin identifier to avoid collisions across plugins.
+
+- Correct: `hyperloop/skills/hyperwork-tdd/SKILL.md`
+- Wrong: `hyperloop/skills/worker-skills/tdd/SKILL.md`
 
 ### Versioning — semantic versioning
 
@@ -105,7 +113,3 @@ All skill/reference files must be compressed before commit. Level depends on fil
 **Preserve always:** numbered step sequence, code blocks, YAML front-matter, table structure in spec/contract files, quoted error strings, conditional logic branches, AC lists.
 
 **Review reminder:** compress before committing new/edited skill files. PRs adding skill/reference content → include before/after line counts in PR body.
-
-## Hyperteam Role Hints
-
-Language-pack agents (`hyperteam-py-api-scaffolder`, `hyperteam-py-builder`) exist in `hyperloop/agents/` but apply only to Python tasks. For Markdown-only or non-code FEAT tasks → use `role_hint: hyperteam-worker` regardless of installed packs.

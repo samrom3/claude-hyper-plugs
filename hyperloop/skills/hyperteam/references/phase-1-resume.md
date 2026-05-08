@@ -46,18 +46,19 @@ Use `AskUserQuestion`:
 
 - **User confirms:**
   1. Write updated `team-state.json` (`in_progress` tasks reset to `pending`, all `native_task_id` cleared to `null`).
-  2. Re-seed native task list: per `status: pending` task, call `TaskCreate` with YAML front-matter and full story text as `description`:
+  2. Re-seed native task list: per `status: pending` task, call `TaskCreate` with YAML front-matter and full step text as `description`:
 
      ```
      ---
      id: <task_id>
      type: <FEAT|DOC|GATE>
-     role_hint: <role_hint>
+     skills:
+       - <skill_name>
      blocked_by:
        - <blocker_id_1>
      ---
 
-     <full story text and acceptance criteria>
+     <full step text and acceptance criteria>
      ```
 
   3. Store each returned UUID as `native_task_id` in corresponding task object in `team-state.json`.

@@ -24,6 +24,7 @@ Taken when `plans/<branch>-team-state.json` does **not** exist.
    - **Type** — `DOC` if heading prefix is `DOC-`; `FEAT` otherwise
    - **Title** — heading text after `### ` prefix (strip leading prefix+ID if present, e.g. `### STEP-foo-01: Bar` → `Bar`)
    - **Description** — all body text under heading until next `###`
+   - **Skills** — scan description for `> skills: <value>` line. `<value>` is comma-separated skill names → split to array. `none` or absent → `[]`.
 4. Preserve spec step order — this is dependency order.
 
 > **Note:** Scaffold-first pattern applied by `/session-spec` at authoring time. Phase 1 maps each spec step to exactly one task entry; no re-splitting.
@@ -89,38 +90,8 @@ Use `AskUserQuestion`:
 
 Wait for response.
 
-- **Approved** → proceed to Step 5b.
+- **Approved** → proceed to Step 6.
 - **Changes requested** → apply changes, re-render DAG, ask again. Repeat until approved.
-
----
-
-## Step 5b — Assign role hints
-
-Per task, assign `role_hint`:
-
-**Core roles (always available):**
-
-| Condition | `role_hint` |
-|-----------|-------------|
-| DOC tasks | `hyperteam-techwriter` |
-| GATE tasks | `hyperteam-reviewer` |
-
-**Language-pack roles (when matching agents installed):**
-
-Check for language-specific agents in project's `.claude/agents/` or plugin's `agents/` (all plugin agents live flat in `agents/` for auto-discovery). Apply language-pack heuristics BEFORE falling back to `hyperteam-worker`.
-
-Example with Python pack:
-
-| Condition | `role_hint` |
-|-----------|-------------|
-| FEAT task first in chain, OR title contains: scaffold, stub, api, dataclass, interface, abc | `hyperteam-py-api-scaffolder` |
-| Other FEAT tasks | `hyperteam-py-builder` |
-
-**Fallback:**
-
-| Condition | `role_hint` |
-|-----------|-------------|
-| Any unmatched task | `hyperteam-worker` |
 
 ---
 
@@ -141,10 +112,10 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
   "tasks": [
     {
       "id": "FEAT-<slug>-01",
-      "title": "<story title>",
-      "description": "<full story text including acceptance criteria>",
+      "title": "<step title>",
+      "description": "<full step text including acceptance criteria>",
       "type": "FEAT",
-      "role_hint": "hyperteam-py-api-scaffolder",
+      "skills": ["<skill_name>"],
       "status": "pending",
       "blocked_by": [],
       "native_task_id": null,
@@ -157,10 +128,10 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
     },
     {
       "id": "DOC-<slug>-01",
-      "title": "<story title>",
-      "description": "<full story text>",
+      "title": "<step title>",
+      "description": "<full step text>",
       "type": "DOC",
-      "role_hint": "hyperteam-techwriter",
+      "skills": ["hyperwork-tech-writing"],
       "status": "pending",
       "blocked_by": ["FEAT-<slug>-01"],
       "native_task_id": null,
@@ -176,7 +147,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
       "title": "Back-pressure gate",
       "description": "Run all five gate checks per references/gate-task-template.md.",
       "type": "GATE",
-      "role_hint": "hyperteam-reviewer",
+      "skills": [],
       "status": "pending",
       "blocked_by": ["<all FEAT and DOC task IDs>"],
       "native_task_id": null,
@@ -194,14 +165,14 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
 
 Rules:
 
-- `metadata.source_issues` — array from PRD metadata table Step 1 (e.g. `["owner/repo#N"]`, or `null` if none). **MUST NOT be mutated after first write.**
+- `metadata.source_issues` — array from spec metadata table Step 1 (e.g. `["owner/repo#N"]`, or `null` if none). **MUST NOT be mutated after first write.**
 - `metadata.created_at` — current UTC timestamp, ISO 8601 (e.g. `"2026-03-14T10:00:00Z"`).
 - All tasks: `"status": "pending"`, all timestamp/result fields `null`.
 - All tasks: `"native_task_id": null` — native tasks seeded by Phase 2 Step 3.
 - All FEAT tasks: `"reviewed": false`.
 - Task order: FEAT (spec order) → DOC (spec order) → GATE.
 - `blocked_by` arrays: exact task ID strings from Step 3.
-- `role_hint` per Step 5b.
+- `skills` arrays: from Step 1 annotation parsing (`skills: none` → `[]`).
 
 **After writing, per issue in `metadata.source_issues` (skip if null/empty):**
 

@@ -86,6 +86,47 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    - **One step = one commit.** Scope each step so it can be implemented and committed independently (assuming prior steps already on branch). Steps that cannot be committed in isolation must be merged or re-scoped.
    - AC per step: `- [ ]` items — concrete, independently falsifiable checks. Include: artifact exists, behavior correct, project verification command passes. For new API surface, first step creates stubs with failing tests; subsequent steps implement against stable contracts.
 
+4. **Skill assignment per step.** Every step must declare `skills`. Parsed by hyperteam Phase 1 → `skills` array in task YAML front-matter.
+
+   Apply all rules that match.
+
+   - Python code involved → add `hyperwork-python`
+   - TypeScript code involved → add `hyperwork-typescript`
+   - Step implements logic against existing contracts (not pure scaffolding) → add `hyperwork-tdd`
+   - Step generates stubs, schemas, or API surface → add `hyperwork-api-scaffold`
+   - Step is docs, README, changelog, ADR, or user-facing writing → add `hyperwork-tech-writing`
+
+   No matches → `skills: none` (explicit sentinel; worker skips loading).
+
+   Each step annotation (embedded in spec body, parsed by hyperteam Phase 1):
+   ```
+   > skills: hyperwork-tdd, hyperwork-python
+   ```
+
+   Example step with skill annotation:
+   ```markdown
+   ### STEP-auth-01: Implement JWT validation middleware
+
+   > skills: hyperwork-tdd, hyperwork-python
+
+   **Acceptance Criteria:**
+   - [ ] `src/auth/middleware.py` exists with `validate_jwt(token: str) -> Claims` function
+   - [ ] Unit tests in `tests/test_middleware.py` cover valid, expired, malformed token cases
+   - [ ] `pre-commit run --all-files` exits 0
+   ```
+
+   The hyperteam skill (Phase 2, Step 3) reads these annotations and produces the native task YAML:
+   ```yaml
+   ---
+   id: FEAT-auth-01
+   type: FEAT
+   skills:
+     - hyperwork-tdd
+     - hyperwork-python
+   blocked_by: []
+   ---
+   ```
+
    > **Reading note for agents:** Metadata table (if present) appears **immediately after H1** and **before first `##` section**. Parsers: locate H1, scan forward collecting all `| Source Issue |` rows before `##`; none found → `source_issues` is `null`.
 
 ### Step 5 — Final Conflict Sweep
@@ -106,5 +147,6 @@ ______________________________________________________________________
 - [ ] `<source_issues>` non-null → metadata table present immediately after H1 and before `## Goal`; null → no table
 - [ ] Spec uses `## Goal / ## Context / ## Non-goals / ## Steps / ## Open Questions` structure
 - [ ] Each step has `**Acceptance Criteria:**` checklist with ≥1 concrete, independently falsifiable `- [ ]` item
+- [ ] Each step has `> skills:` annotation (`skills: none` if no rules match)
 - [ ] Old `plans/<branch>-session-spec.md` archived to `plans/archive/` if existed
 - [ ] Final conflict sweep complete — no intra-spec contradictions, no codebase conflicts

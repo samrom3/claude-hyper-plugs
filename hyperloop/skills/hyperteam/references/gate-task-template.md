@@ -13,7 +13,7 @@ You are the back-pressure gate agent. Perform all five checks below IN ORDER.
 
 Verify all docs/, README.md, CONTRIBUTING.md content matches implemented code.
 
-- Mismatched AND PRD makes correct one clear → fix out-of-sync artifact.
+- Mismatched AND spec makes correct one clear → fix out-of-sync artifact.
 - Mismatched AND spec ambiguous → ask user to resolve. Append resolution to new "Implementation Conflict Resolutions" section at bottom of spec file (plans/<branch>-session-spec.md). Do not modify any other spec section.
 
 ## Check 2 — ADR sync
@@ -35,11 +35,11 @@ Run project's verification command per CLAUDE.md. Includes lint, format, tests. 
 
 ## Check 4 — Acceptance criteria
 
-Verify every acceptance criterion in each developer story in PRD is met.
+Verify every acceptance criterion in each step in the session-spec is met.
 
 ## Check 5 — Success metrics
 
-Verify every success metric in PRD's Success Metrics section is met.
+Verify every success metric in the session-spec's Success Metrics section is met.
 
 ## Progress file logging
 
@@ -84,5 +84,5 @@ Checks 3–5 fail:
 
 - **Gate iterations:** tracked via `gate_iterations` integer in `plans/<branch>-team-state.json`.
 - **Numbering:** Each successive gate increments `gate_iterations` by 1.
-- **Remediation tasks:** new objects in `tasks` array with `status: pending`, appropriate `role_hint`, appropriate `blocked_by`.
+- **Remediation tasks:** new objects in `tasks` array with `status: pending`, appropriate `skills`, appropriate `blocked_by`. Task type drives agent routing (FEAT/DOC → worker; GATE → reviewer).
 - **Native task seeding:** lead calls `TaskCreate` per remediation task after receiving GATE FAIL signal — gate agent does not create native tasks directly.

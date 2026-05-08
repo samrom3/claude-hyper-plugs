@@ -36,7 +36,7 @@ Append to `plans/<branch>-progress.txt`:
 Use `AskUserQuestion`:
 
 > GATE passed. All tasks complete. Create a PR for branch `<branch>`?
-> (Title derived from PRD title. Answering 'no' leaves branch open for manual PR.)
+> (Title derived from spec H1. Answering 'no' leaves branch open for manual PR.)
 
 ---
 
@@ -47,13 +47,13 @@ Run `gh pr create`:
 - `--title`: First H1 in `plans/<branch>-session-spec.md` after frontmatter, backtick-wrapped skill name stripped (plain prose title).
 - `--body`: Summary including:
   1. **Goal** section from spec (verbatim or abbreviated).
-  2. Linked stories: list of `FEAT-*` and `DOC-*` task IDs with titles.
+  2. Linked steps: list of `FEAT-*` and `DOC-*` task IDs with titles.
   3. **Source issue close links** (if `metadata.source_issues` non-null and non-empty):
      - Run `gh repo view --json nameWithOwner --jq '.nameWithOwner'` → current repo `owner/repo`.
      - Per `source_issues` entry, emit one `Closes` line:
        - Same repo: `Closes #N`
        - Cross-repo: `Closes https://github.com/owner/repo/issues/N`
-     - All `Closes` lines **after** linked stories, **before** `---` footer, each on own line, block surrounded by blank lines.
+     - All `Closes` lines **after** linked steps, **before** `---` footer, each on own line, block surrounded by blank lines.
      - `source_issues` null/empty → omit section entirely.
   4. Standard footer:
      ```

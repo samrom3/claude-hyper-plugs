@@ -106,35 +106,36 @@ ______________________________________________________________________
 
 ## Phase 2: Team Creation and Coordination
 
-### Step 1 — Role analysis
+### Step 1 — Count parallel-eligible tasks
 
 1. Read `plans/<branch>-team-state.json`.
-2. Collect distinct `role_hint` values across all tasks with `status: pending`. Call this `roles_needed`.
-3. Always add `hyperteam-reviewer` and `hyperteam-worker` to `roles_needed` (reviewer always needed; worker is fallback for unmatched hints).
+2. Count tasks where `status: pending` AND `blocked_by` is empty (or all listed blockers already terminal). Call this count `N`.
+3. Clamp to `M`: `M = min(max(N, 1), 4)`.
 
 ### Step 2 — Create the team
 
 Call `TeamCreate` with:
 - Team name: `<branch>`
-- One teammate per role in `roles_needed`
+- Teammates: 1 `hyperteam-lead`, `M` `hyperteam-worker` instances, 1 `hyperteam-reviewer`
 - Prompt includes: branch name, paths to `plans/<branch>-team-state.json`, `plans/<branch>-progress.txt`, `plans/<branch>-session-spec.md`
 
 ### Step 3 — Seed the native task list
 
 For every task in `team-state.json` with `status: pending`:
 
-1. Call `TaskCreate` with YAML front-matter block + full story text as `description`:
+1. Call `TaskCreate` with YAML front-matter block + full step text as `description`:
    ```
    ---
    id: <task_id>
    type: <FEAT|DOC|GATE>
-   role_hint: <role_hint>
+   skills:
+     - <skill_name>
    blocked_by:
      - <blocker_id_1>
      - <blocker_id_2>
    ---
 
-   <full story text and acceptance criteria from team-state.json task description>
+   <full step text and acceptance criteria from team-state.json task description>
    ```
 2. Store returned task UUID as `native_task_id` in corresponding task in `team-state.json`.
 3. After all pending tasks processed, write updated `team-state.json` to disk.
@@ -147,7 +148,7 @@ Send broadcast `SendMessage` to team:
 > State file: `plans/<branch>-team-state.json`
 > Progress log: `plans/<branch>-progress.txt`
 >
-> All specialists: claim tasks from native task list. Parse YAML front-matter in each task's description for `role_hint` and `blocked_by`. Resolve blockers via `team-state.json` (blocker terminal when status `validated` or `completed`).
+> All workers: claim tasks from native task list. Parse YAML front-matter in each task's description for `type` (FEAT or DOC) and `blocked_by`. Load `skills:` listed in task front-matter via `Skill` tool before beginning work. Resolve blockers via `team-state.json` (blocker terminal when status `validated` or `completed`).
 >
 > Reviewer: begin scanning `team-state.json` for completed FEAT tasks with `reviewed: false` immediately.
 
