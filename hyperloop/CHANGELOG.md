@@ -37,6 +37,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `references/example-prd.md` guidance updated to show both the table-present and table-absent
   PRD states.
 
+## [3.0.0] - 2026-05-08
+
+### Added
+
+- `worker-skills/` library with five loadable skills: `tdd-python`, `tdd-typescript`,
+  `api-scaffold`, `tech-writing`, `tdd-generic`. Workers load assigned skills at task-claim
+  time via the `Skill` tool.
+
+### Changed
+
+- `hyperteam-worker` promoted to primary executor — claims all tasks tagged
+  `role_hint: hyperteam-worker`, loads skills from `skills:` front-matter field before work.
+- `hyperteam-lead` extended with consult-arbiter protocol — receives worker blockers/questions
+  via `SendMessage`, decides to unblock or escalate upstream. Workers never contact user directly.
+- `hyperteam-reviewer` updated to emit structured PASS/FAIL output — `result`, `task_id`,
+  `findings` (FEAT review) and per-check status (GATE); no prose narratives.
+- `/hyperteam` Phase 2 team composition — N workers inferred from parallel-eligible task count
+  at kickoff (clamped 1–4); no longer derives `roles_needed` from task `role_hint` values.
+- `session-spec` skill now assigns `skills:` array to each task YAML front-matter block;
+  all tasks emit `role_hint: hyperteam-worker`.
+
+### Removed
+
+- `hyperteam-py-builder` agent
+- `hyperteam-py-api-scaffolder` agent
+- `hyperteam-techwriter` agent
+
 ## [2.0.0] - 2026-05-07
 
 ### Added
