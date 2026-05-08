@@ -90,7 +90,7 @@ A worker sent a question or blocker that they cannot resolve without input.
    - `reviewed_at: null`
    - Append the new `review_notes` to the task's history (do not delete prior notes — leave
      them so the worker can see all prior feedback).
-2. Create a new native task via `TaskCreate` with the same description (YAML front-matter + story
+2. Create a new native task via `TaskCreate` with the same description (YAML front-matter + step
    text) including the review notes appended under a `## Prior Review Failures` section.
 3. Update `native_task_id` in `team-state.json` to the new task's UUID.
 4. Notify the team:
@@ -133,7 +133,7 @@ re-seed the native task list:
 
 1. Re-read `team_state_path`.
 2. Find all tasks with `status: pending` and `native_task_id: null` (new remediation tasks).
-3. For each such task, call `TaskCreate` with the YAML front-matter + story text as the
+3. For each such task, call `TaskCreate` with the YAML front-matter + step text as the
    description. Store the returned UUID as `native_task_id` in `team-state.json`.
 4. Broadcast:
 

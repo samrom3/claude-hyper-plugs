@@ -13,7 +13,7 @@ You are the back-pressure gate agent. Perform all five checks below IN ORDER.
 
 Verify all docs/, README.md, CONTRIBUTING.md content matches implemented code.
 
-- Mismatched AND PRD makes correct one clear → fix out-of-sync artifact.
+- Mismatched AND spec makes correct one clear → fix out-of-sync artifact.
 - Mismatched AND spec ambiguous → ask user to resolve. Append resolution to new "Implementation Conflict Resolutions" section at bottom of spec file (plans/<branch>-session-spec.md). Do not modify any other spec section.
 
 ## Check 2 — ADR sync
@@ -35,11 +35,11 @@ Run project's verification command per CLAUDE.md. Includes lint, format, tests. 
 
 ## Check 4 — Acceptance criteria
 
-Verify every acceptance criterion in each developer story in PRD is met.
+Verify every acceptance criterion in each step in the session-spec is met.
 
 ## Check 5 — Success metrics
 
-Verify every success metric in PRD's Success Metrics section is met.
+Verify every success metric in the session-spec's Success Metrics section is met.
 
 ## Progress file logging
 

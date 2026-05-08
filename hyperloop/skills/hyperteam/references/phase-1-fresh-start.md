@@ -124,8 +124,8 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
   "tasks": [
     {
       "id": "FEAT-<slug>-01",
-      "title": "<story title>",
-      "description": "<full story text including acceptance criteria>",
+      "title": "<step title>",
+      "description": "<full step text including acceptance criteria>",
       "type": "FEAT",
       "role_hint": "hyperteam-worker",
       "status": "pending",
@@ -140,8 +140,8 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
     },
     {
       "id": "DOC-<slug>-01",
-      "title": "<story title>",
-      "description": "<full story text>",
+      "title": "<step title>",
+      "description": "<full step text>",
       "type": "DOC",
       "role_hint": "hyperteam-worker",
       "status": "pending",

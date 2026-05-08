@@ -123,7 +123,7 @@ Call `TeamCreate` with:
 
 For every task in `team-state.json` with `status: pending`:
 
-1. Call `TaskCreate` with YAML front-matter block + full story text as `description`:
+1. Call `TaskCreate` with YAML front-matter block + full step text as `description`:
    ```
    ---
    id: <task_id>
@@ -134,7 +134,7 @@ For every task in `team-state.json` with `status: pending`:
      - <blocker_id_2>
    ---
 
-   <full story text and acceptance criteria from team-state.json task description>
+   <full step text and acceptance criteria from team-state.json task description>
    ```
 2. Store returned task UUID as `native_task_id` in corresponding task in `team-state.json`.
 3. After all pending tasks processed, write updated `team-state.json` to disk.
