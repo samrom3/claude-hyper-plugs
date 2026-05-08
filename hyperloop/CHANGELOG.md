@@ -5,6 +5,33 @@ All notable changes to the hyperloop plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-05-08
+
+### Fixed
+
+- Confirmed all three required `TaskUpdate` call sites present in `hyperteam-worker.md`:
+  `in_progress` on claim, `completed` on finish, `pending` rollback on commit failure or
+  unresolvable blocker. "Always update BOTH native task and team-state.json" invariant present
+  in Rules. (Issue #28 item 1)
+- Restored `## Open Questions` resolution gate to `session-spec` Step 6 (Final Conflict Sweep)
+  and Before Saving checklist. Gate was present in the original `prd` skill and was lost during
+  the v2.0.0 rename. (Issue #28 item 2)
+- Removed stale `prd` references from `hyperteam/SKILL.md` frontmatter description and
+  `team-state-schema.md`; updated "On scaffold missing" handler in `hyperteam-lead.md` from
+  "builder" to "worker" to match v3.0.0 self-claim terminology. (Issue #28 item 3)
+
+### Added
+
+- Pre-generation idea-refinement checkpoint (Step 4) in `session-spec` skill. After the
+  interview, skill now summarizes gathered goals/scope/resolved conflicts and asks the user to
+  Proceed or Refine. Capped at 2 refinement iterations — proceeds regardless on the third pass.
+  Added corresponding item to Before Saving checklist. (Issue #22)
+- Two-condition gate for `hyperwork-api-scaffold` as a standalone step in session-spec skill
+  assignment. Standalone step assigned only when BOTH: (a) no existing structure — target
+  modules/files absent and shape indeterminate from existing code; (b) parallelism unlock —
+  scaffolded stubs allow ≥2 workers to proceed independently. Gate not met → structure
+  definition bundled into the first FEAT task that requires it. (Issue #26)
+
 ## [3.0.0] - 2026-05-08
 
 ### Added
