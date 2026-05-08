@@ -169,13 +169,15 @@ at `~/.claude/tasks/{team-name}/`.
 
 Workers load domain skills at task-claim time via the `Skill` tool. Skills are assigned per task in the session-spec and stored in task YAML front-matter (`skills:` field). Skill files live in `hyperloop/skills/worker-skills/`.
 
-| Skill            | Purpose                                                            |
-| ---------------- | ------------------------------------------------------------------ |
-| `tdd-python`     | Python implementation: pytest-first, type hints, uv/venv tooling   |
-| `tdd-typescript` | TypeScript implementation: tsc type check, vitest/ts-jest patterns |
-| `api-scaffold`   | API endpoint stubs, schema generation, contract-first design       |
-| `tech-writing`   | Docs, README, changelog, ADR, user-facing writing                  |
-| `tdd-generic`    | Fallback for untyped or mixed tasks not matching a specific skill  |
+| Skill          | Purpose                                                                           |
+| -------------- | --------------------------------------------------------------------------------- |
+| `tdd`          | Language-agnostic TDD discipline — red/green/refactor. Fallback for unknown stack |
+| `python`       | Python tooling: pytest, uv, mypy, conftest patterns. Compose with `tdd`           |
+| `typescript`   | TypeScript tooling: tsc, vitest/ts-jest, tsconfig. Compose with `tdd`             |
+| `api-scaffold` | API endpoint stubs, schema generation, contract-first design                      |
+| `tech-writing` | Docs, README, changelog, ADR, user-facing writing                                 |
+
+Skills compose: `skills: [tdd, python]` for Python impl, `skills: [tdd, typescript]` for TypeScript, `skills: [tdd]` as universal fallback.
 
 ### State management
 

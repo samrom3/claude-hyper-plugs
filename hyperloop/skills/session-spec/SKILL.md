@@ -92,20 +92,20 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
 
    Assign `skills:` using this mapping (can assign multiple):
 
-   | Task type / signals                                | skills                          |
-   | -------------------------------------------------- | ------------------------------- |
-   | Python implementation, tests, refactor             | `tdd-python`                    |
-   | TypeScript implementation, tests, refactor         | `tdd-typescript`                |
-   | API scaffold, endpoint stub, schema generation     | `api-scaffold`                  |
-   | Docs, README, changelog, ADR, user-facing writing  | `tech-writing`                  |
-   | Mixed Python + API scaffold                        | `tdd-python`, `api-scaffold`    |
-   | Unknown / untyped / general                        | `tdd-generic`                   |
+   | Task type / signals                                | skills                        |
+   | -------------------------------------------------- | ----------------------------- |
+   | Python implementation, tests, refactor             | `tdd`, `python`               |
+   | TypeScript implementation, tests, refactor         | `tdd`, `typescript`           |
+   | API scaffold, endpoint stub, schema generation     | `api-scaffold`                |
+   | Docs, README, changelog, ADR, user-facing writing  | `tech-writing`                |
+   | Mixed Python + API scaffold                        | `tdd`, `python`, `api-scaffold` |
+   | Unknown / untyped / general                        | `tdd`                         |
 
-   Default fallback: `tdd-generic` for any step not matching the table above.
+   Default fallback: `tdd` for any step not matching the table above.
 
    Each step annotation (embedded in spec body, parsed by hyperteam Phase 1):
    ```
-   > skills: tdd-python
+   > skills: tdd, python
    > role_hint: hyperteam-worker
    ```
 
@@ -113,7 +113,7 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    ```markdown
    ### STEP-auth-01: Implement JWT validation middleware
 
-   > skills: tdd-python
+   > skills: tdd, python
    > role_hint: hyperteam-worker
 
    **Acceptance Criteria:**
@@ -129,7 +129,8 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    type: FEAT
    role_hint: hyperteam-worker
    skills:
-     - tdd-python
+     - tdd
+     - python
    blocked_by: []
    ---
    ```
