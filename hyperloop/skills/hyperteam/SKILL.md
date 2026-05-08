@@ -106,17 +106,17 @@ ______________________________________________________________________
 
 ## Phase 2: Team Creation and Coordination
 
-### Step 1 — Role analysis
+### Step 1 — Count parallel-eligible tasks
 
 1. Read `plans/<branch>-team-state.json`.
-2. Collect distinct `role_hint` values across all tasks with `status: pending`. Call this `roles_needed`.
-3. Always add `hyperteam-reviewer` and `hyperteam-worker` to `roles_needed` (reviewer always needed; worker is fallback for unmatched hints).
+2. Count tasks where `status: pending` AND `blocked_by` is empty (or all listed blockers already terminal). Call this count `N`.
+3. Clamp: `N = min(max(N, 1), 4)`.
 
 ### Step 2 — Create the team
 
 Call `TeamCreate` with:
 - Team name: `<branch>`
-- One teammate per role in `roles_needed`
+- Teammates: 1 `hyperteam-lead`, `N` `hyperteam-worker` instances, 1 `hyperteam-reviewer`
 - Prompt includes: branch name, paths to `plans/<branch>-team-state.json`, `plans/<branch>-progress.txt`, `plans/<branch>-session-spec.md`
 
 ### Step 3 — Seed the native task list
@@ -147,7 +147,7 @@ Send broadcast `SendMessage` to team:
 > State file: `plans/<branch>-team-state.json`
 > Progress log: `plans/<branch>-progress.txt`
 >
-> All specialists: claim tasks from native task list. Parse YAML front-matter in each task's description for `role_hint` and `blocked_by`. Resolve blockers via `team-state.json` (blocker terminal when status `validated` or `completed`).
+> All workers: claim tasks from native task list. Parse YAML front-matter in each task's description for `role_hint: hyperteam-worker` and `blocked_by`. Load `skills:` listed in task front-matter via `Skill` tool before beginning work. Resolve blockers via `team-state.json` (blocker terminal when status `validated` or `completed`).
 >
 > Reviewer: begin scanning `team-state.json` for completed FEAT tasks with `reviewed: false` immediately.
 
