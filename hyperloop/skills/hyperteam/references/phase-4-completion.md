@@ -44,9 +44,9 @@ Use `AskUserQuestion`:
 
 Run `gh pr create`:
 
-- `--title`: First H1 in `plans/<branch>-prd.md` after frontmatter, backtick-wrapped skill name stripped (plain prose title).
+- `--title`: First H1 in `plans/<branch>-session-spec.md` after frontmatter, backtick-wrapped skill name stripped (plain prose title).
 - `--body`: Summary including:
-  1. **Goals** section from PRD (verbatim or abbreviated).
+  1. **Goal** section from spec (verbatim or abbreviated).
   2. Linked stories: list of `FEAT-*` and `DOC-*` task IDs with titles.
   3. **Source issue close links** (if `metadata.source_issues` non-null and non-empty):
      - Run `gh repo view --json nameWithOwner --jq '.nameWithOwner'` → current repo `owner/repo`.

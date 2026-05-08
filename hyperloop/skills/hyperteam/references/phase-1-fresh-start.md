@@ -6,8 +6,8 @@ Taken when `plans/<branch>-team-state.json` does **not** exist.
 
 ## Step 1 — Read and parse the PRD
 
-1. Read `plans/<branch>-prd.md` in full.
-   > **Metadata table:** If `/prd` invoked with GitHub issue URL, metadata table appears **immediately after H1 heading** and **before first `##` section heading**:
+1. Read `plans/<branch>-session-spec.md` in full.
+   > **Metadata table:** If `/session-spec` invoked with GitHub issue URL, metadata table appears **immediately after H1 heading** and **before first `##` section heading**:
    >
    > ```markdown
    > | Field        | Value        |
@@ -24,7 +24,7 @@ Taken when `plans/<branch>-team-state.json` does **not** exist.
    - **Description** — all body text under heading until next `###`
 4. Preserve PRD story order — this is dependency order.
 
-> **Note:** Scaffold-first pattern applied by `/prd` at authoring time. Phase 1 maps each PRD story to exactly one task entry; no re-splitting.
+> **Note:** Scaffold-first pattern applied by `/session-spec` at authoring time. Phase 1 maps each PRD story to exactly one task entry; no re-splitting.
 
 ---
 
@@ -131,7 +131,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
   "metadata": {
     "branch": "<branch>",
     "slug": "<slug>",
-    "prd_path": "plans/<branch>-prd.md",
+    "prd_path": "plans/<branch>-session-spec.md",
     "status": "running",
     "source_issues": "<array from PRD metadata table, or null>",
     "created_at": "<ISO 8601 timestamp>"

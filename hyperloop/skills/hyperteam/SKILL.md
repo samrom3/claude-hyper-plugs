@@ -1,13 +1,13 @@
 ---
 name: hyperteam
-description: "Reads a PRD, derives a task DAG, gets user approval, writes team-state.json, seeds the native task list, creates a specialist team, and monitors until the back-pressure gate passes. Replaces the /prd-tasks + /hyperworker two-step workflow."
+description: "Reads a session-spec, derives a task DAG, gets user approval, writes team-state.json, seeds the native task list, creates a specialist team, and monitors until the back-pressure gate passes. Replaces the /session-spec + /hyperworker two-step workflow."
 user-invocable: true
 disable-model-invocation: true
 ---
 
 # Hyperteam
 
-Converts PRD into autonomous agent team. Executes full task DAG, tracks state in `plans/<branch>-team-state.json`, coordinates via native task list, offers PR when gate passes.
+Converts session-spec into autonomous agent team. Executes full task DAG, tracks state in `plans/<branch>-team-state.json`, coordinates via native task list, offers PR when gate passes.
 
 ______________________________________________________________________
 
@@ -17,34 +17,36 @@ ______________________________________________________________________
 
 Run checks in order. **Stop and surface each issue as encountered.**
 
-### Step 1 — Scan `plans/` and select a PRD
+### Step 1 — Scan `plans/` and select a session-spec
 
-1. List all files in `plans/` matching `*-prd.md`.
-2. For each `plans/<name>-prd.md`, determine state:
+1. **Legacy check:** List files matching `*-prd.md` in `plans/`. Any found → stop:
+   > Legacy `-prd.md` plans found: `<list>`. Rename to `-session-spec.md` to proceed, or create a new spec with `/session-spec`. Do not silently process old-format files.
+2. List all files in `plans/` matching `*-session-spec.md`.
+3. For each `plans/<name>-session-spec.md`, determine state:
    - No `plans/<name>-team-state.json` → **unstarted**.
    - `metadata.status = "running"` → **in-progress**.
    - `metadata.status = "complete"` → **complete**.
    - Any other value → **in-progress**.
-3. Exclude **complete** PRDs from selection.
-4. No incomplete PRDs → stop:
-   > No incomplete PRDs found in `plans/`. Create a PRD first with `/prd`.
-5. Build ordered selection list: unstarted first, then in-progress. Within each group, sort by file modification time (most recent first). Format each entry: `<n>. plans/<name>-prd.md`. Append for in-progress entries: `⚠ This PRD may have an in-flight hyperteam run. Ensure no other session is working on it before proceeding.`
-6. **Single PRD:** Use `AskUserQuestion`:
-   > Only one incomplete PRD found:
+4. Exclude **complete** specs from selection.
+5. No incomplete specs → stop:
+   > No incomplete session-specs found in `plans/`. Create a session-spec first with `/session-spec`.
+6. Build ordered selection list: unstarted first, then in-progress. Within each group, sort by file modification time (most recent first). Format each entry: `<n>. plans/<name>-session-spec.md`. Append for in-progress entries: `⚠ This spec may have an in-flight hyperteam run. Ensure no other session is working on it before proceeding.`
+7. **Single spec:** Use `AskUserQuestion`:
+   > Only one incomplete session-spec found:
    >
-   > `plans/<name>-prd.md` [warning if in-progress]
+   > `plans/<name>-session-spec.md` [warning if in-progress]
    >
-   > Proceed with this PRD?
+   > Proceed with this spec?
 
    User confirms → select it. Otherwise stop.
-7. **Multiple PRDs:** Use `AskUserQuestion`:
-   > Multiple PRDs found. Choose one to run:
+8. **Multiple specs:** Use `AskUserQuestion`:
+   > Multiple session-specs found. Choose one to run:
    >
    > <numbered selection list>
 
    Wait for user's choice.
-8. Derive `<branch>` from selected filename: strip `plans/` prefix and `-prd.md` suffix.
-9. Derive `<slug>` from `<branch>` by stripping leading `feat-` prefix if present. If `<branch>` does not start with `feat-`, use `<branch>` as `<slug>` unchanged.
+9. Derive `<branch>` from selected filename: strip `plans/` prefix and `-session-spec.md` suffix.
+10. Derive `<slug>` from `<branch>` by stripping leading `feat-` prefix if present. If `<branch>` does not start with `feat-`, use `<branch>` as `<slug>` unchanged.
 
 ### Step 2 — Checkout git branch
 
@@ -70,8 +72,35 @@ Run checks in order. **Stop and surface each issue as encountered.**
 ### Step 4 — Detect fresh start vs. resume
 
 Check `plans/<branch>-team-state.json`:
-- **Absent** → Read `references/phase-1-fresh-start.md` and follow in full. Return here, proceed to Phase 2.
-- **Present** → Read `references/phase-1-resume.md` and follow in full. Return here and proceed to Phase 2 (or stop if user declines).
+- **Absent** → Read `references/phase-1-fresh-start.md` and follow in full. Return here, proceed to Step 5.
+- **Present** → Read `references/phase-1-resume.md` and follow in full. Return here and proceed to Step 5 (or stop if user declines).
+
+### Step 5 — Gate discretion
+
+After spec parsed and task DAG proposed, assess whether back-pressure gate task is needed.
+
+**Gate recommended when any of:**
+
+- Total step count ≥ 4
+- Cross-step integration required (one step's output is another's input)
+- Output not easily human-verifiable in-session (e.g., data pipelines, infra changes)
+
+**Gate optional when ALL of:**
+
+- Total step count ≤ 3
+- Each step has independent verify criteria (no cross-step deps)
+- Human already in verification loop (e.g., UI changes requiring manual review, or user will run `claude plugin validate .` themselves)
+- Unit/integration tests alone sufficient to confirm correctness
+
+Present recommendation via `AskUserQuestion`:
+
+> Gate task **recommended / not recommended** because [reason].
+>
+> Proceed with gate? [Yes / No / Override]
+
+User can override either way. If Yes (or override to Yes) → include GATE task in DAG and Phase 2 team creation. If No → omit GATE task.
+
+Proceed to Phase 2.
 
 ______________________________________________________________________
 
@@ -88,7 +117,7 @@ ______________________________________________________________________
 Call `TeamCreate` with:
 - Team name: `<branch>`
 - One teammate per role in `roles_needed`
-- Prompt includes: branch name, paths to `plans/<branch>-team-state.json`, `plans/<branch>-progress.txt`, `plans/<branch>-prd.md`
+- Prompt includes: branch name, paths to `plans/<branch>-team-state.json`, `plans/<branch>-progress.txt`, `plans/<branch>-session-spec.md`
 
 ### Step 3 — Seed the native task list
 

@@ -14,7 +14,7 @@ You are the back-pressure gate agent. Perform all five checks below IN ORDER.
 Verify all docs/, README.md, CONTRIBUTING.md content matches implemented code.
 
 - Mismatched AND PRD makes correct one clear → fix out-of-sync artifact.
-- Mismatched AND PRD ambiguous → ask user to resolve. Append resolution to new "Implementation Conflict Resolutions" section at bottom of PRD file (plans/<branch>-prd.md). Do not modify any other PRD section.
+- Mismatched AND spec ambiguous → ask user to resolve. Append resolution to new "Implementation Conflict Resolutions" section at bottom of spec file (plans/<branch>-session-spec.md). Do not modify any other spec section.
 
 ## Check 2 — ADR sync
 
