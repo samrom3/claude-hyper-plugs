@@ -82,9 +82,9 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
 3. Spec structure:
    - `<source_issues>` non-null → write metadata table **immediately after H1 and before `## Goal`**, one `| Source Issue |` row per issue.
    - `<source_issues>` null → omit table. H1 followed directly by `## Goal`.
-   - Steps framing: each deliverable = `### STEP-<slug>-NN: <name>` with `→ verify:` line.
+   - Steps framing: each deliverable = `### STEP-<slug>-NN: <name>` with `**Acceptance Criteria:**` checklist.
    - **One step = one commit.** Scope each step so it can be implemented and committed independently (assuming prior steps already on branch). Steps that cannot be committed in isolation must be merged or re-scoped.
-   - Verify criterion per step: concrete command or check confirming step done. For new API surface, first step creates stubs with failing tests; subsequent steps implement against stable contracts.
+   - AC per step: `- [ ]` items — concrete, independently falsifiable checks. Include: artifact exists, behavior correct, project verification command passes. For new API surface, first step creates stubs with failing tests; subsequent steps implement against stable contracts.
 
    > **Reading note for agents:** Metadata table (if present) appears **immediately after H1** and **before first `##` section**. Parsers: locate H1, scan forward collecting all `| Source Issue |` rows before `##`; none found → `source_issues` is `null`.
 
@@ -105,6 +105,6 @@ ______________________________________________________________________
 - [ ] Interview complete: ≤3 `AskUserQuestion` calls; ≥1 addressed Step 2 conflicts (if any)
 - [ ] `<source_issues>` non-null → metadata table present immediately after H1 and before `## Goal`; null → no table
 - [ ] Spec uses `## Goal / ## Context / ## Non-goals / ## Steps / ## Open Questions` structure
-- [ ] Each step has `→ verify:` line with concrete check
+- [ ] Each step has `**Acceptance Criteria:**` checklist with ≥1 concrete, independently falsifiable `- [ ]` item
 - [ ] Old `plans/<branch>-session-spec.md` archived to `plans/archive/` if existed
 - [ ] Final conflict sweep complete — no intra-spec contradictions, no codebase conflicts

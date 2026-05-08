@@ -50,13 +50,26 @@ Deliver notifications to users when important events occur — routing messages 
 
 Create `NotificationPayload` value object (`src/models/`) and `DeliveryService` stub (`src/services/`) with `NotImplementedError` body. Add `PayloadBuilder` with chained construction. Write skeleton tests covering expected API shape (tests will fail on `NotImplementedError`).
 
-→ verify: `pytest tests/test_notification_delivery.py` exits non-zero (stubs exist, tests fail as expected on NotImplementedError); `from src.models.notification import NotificationPayload` imports without error
+**Acceptance Criteria:**
+
+- [ ] `NotificationPayload` value object in `src/models/` with fields: `event_type`, `recipient_id`, `channel`, `body`, `created_at`
+- [ ] `DeliveryService` in `src/services/` with `deliver()` stub raising `NotImplementedError`
+- [ ] `PayloadBuilder` allows chained construction
+- [ ] Skeleton tests exist; `pytest tests/test_notification_delivery.py` exits non-zero (stubs present, tests fail on `NotImplementedError`)
+- [ ] `from src.models.notification import NotificationPayload` imports without error
+- [ ] Project verification command passes (see `CLAUDE.md`)
 
 ### STEP-notification-delivery-02: Implement DeliveryService routing logic
 
 Implement `DeliveryService.deliver()` to route by `NotificationPayload.channel`. Handle unknown channel with explicit error; reject empty body. All scaffold tests must now pass.
 
-→ verify: `pytest tests/test_notification_delivery.py` exits 0; `grep -c "NotImplementedError" src/services/delivery.py` equals 0
+**Acceptance Criteria:**
+
+- [ ] `DeliveryService.deliver()` routes to correct channel handler by `NotificationPayload.channel`
+- [ ] Unknown channel raises explicit error; empty body rejected
+- [ ] All scaffold-step tests pass: `pytest tests/test_notification_delivery.py` exits 0
+- [ ] `grep -c "NotImplementedError" src/services/delivery.py` equals 0
+- [ ] Project verification command passes (see `CLAUDE.md`)
 
 ## Open Questions
 
