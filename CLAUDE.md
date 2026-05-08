@@ -61,8 +61,8 @@ pre-commit run --all-files    # trailing whitespace, EOF fixer, YAML check, merg
 
 Plugin agents **must** live directly in `agents/` — no subdirectories. Nested agents are invisible to discovery.
 
-- Correct: `hyperloop/agents/hyperteam-py-builder.md`
-- Wrong: `hyperloop/agents/packs/python/hyperteam-py-builder.md`
+- Correct: `hyperloop/agents/hyperteam-worker.md`
+- Wrong: `hyperloop/agents/packs/hyperteam-worker.md`
 
 > User-added agents (in `.claude/agents/`) not subject to this rule.
 
@@ -108,4 +108,4 @@ All skill/reference files must be compressed before commit. Level depends on fil
 
 ## Hyperteam Role Hints
 
-Language-pack agents (`hyperteam-py-api-scaffolder`, `hyperteam-py-builder`) exist in `hyperloop/agents/` but apply only to Python tasks. For Markdown-only or non-code FEAT tasks → use `role_hint: hyperteam-worker` regardless of installed packs.
+All tasks use `role_hint: hyperteam-worker`. No specialist role hints. Skill assignment via `skills:` array in task YAML front-matter — entries from `hyperloop/skills/worker-skills/` library. Worker loads each skill via `Skill` tool at claim time before beginning work.
