@@ -151,16 +151,16 @@ re-seed the native task list:
 5. If ALL tasks are `validated`, `completed`, or `blocked` and no GATE has run: go to
    **Detect GATE Ready**.
 
-### On scaffold missing (`SendMessage` from builder)
+### On scaffold missing (`SendMessage` from worker)
 
-A builder reported that the scaffold for a task is missing:
+A worker reported that the scaffold for a task is missing:
 
-1. Re-read `team_state_path` to check whether the scaffolder task is `completed` or `validated`.
-2. If the scaffolder task is done but the scaffold file is absent: use `AskUserQuestion` to
+1. Re-read `team_state_path` to check whether the scaffold task is `completed` or `validated`.
+2. If the scaffold task is done but the scaffold file is absent: use `AskUserQuestion` to
    surface the discrepancy.
-3. If the scaffolder task is still `pending` or `in_progress`: broadcast to the team:
+3. If the scaffold task is still `pending` or `in_progress`: broadcast to the team:
 
-   > Scaffold task still in progress. Builder for `<task_id>`: please wait — the scaffolder
+   > Scaffold task still in progress. Worker for `<task_id>`: please wait — the scaffold task
    > will signal when done.
 
 ---

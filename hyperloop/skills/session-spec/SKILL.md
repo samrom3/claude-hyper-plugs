@@ -75,10 +75,16 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
 
 **Text description mode:** ask 2–3 questions on problem/goal, scope/boundaries, success criteria.
 
-### Step 4 — Generate Spec
+### Step 4 — Pre-Generation Checkpoint
 
-1. If `plans/<branch>-session-spec.md` exists → move to `plans/archive/<branch>-session-spec.md` before writing.
-2. Write `plans/<branch>-session-spec.md` in step→verify format per `references/example-session-spec.md`.
+1. Summarize in 1–3 sentences: goals gathered, scope boundaries, conflicts resolved in Steps 2–3.
+2. `AskUserQuestion`: "Proceed to generate spec, or refine further?"
+   - **Proceed** → continue to Step 5.
+   - **Refine** → return to Step 3 for one additional targeted interview round (budget: 1–2 questions, separate from initial Step 3 budget). Cap: max 2 refinement iterations total — if Refine selected twice, proceed to Step 5 regardless on next pass.
+
+### Step 5 — Generate Spec
+
+1. Draft spec content in step→verify format per `references/example-session-spec.md` — do not write to disk yet; Step 6 sweep runs first.
 3. Spec structure:
    - `<source_issues>` non-null → write metadata table **immediately after H1 and before `## Goal`**, one `| Source Issue |` row per issue.
    - `<source_issues>` null → omit table. H1 followed directly by `## Goal`.
@@ -93,8 +99,11 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    - Python code involved → add `hyperwork-python`
    - TypeScript code involved → add `hyperwork-typescript`
    - Step implements logic against existing contracts (not pure scaffolding) → add `hyperwork-tdd`
-   - Step generates stubs, schemas, or API surface → add `hyperwork-api-scaffold`
    - Step is docs, README, changelog, ADR, or user-facing writing → add `hyperwork-tech-writing`
+   - `hyperwork-api-scaffold` as a **standalone** step only when BOTH hold:
+     (a) **No existing structure** — target modules/files absent and shape indeterminate from existing code.
+     (b) **Parallelism unlock** — scaffolded stubs allow ≥2 workers to proceed independently in next wave; if work remains serial after scaffolding, skip standalone step.
+     **Gate not met** → bundle structure-definition into first FEAT task requiring it: add `hyperwork-api-scaffold` to that task's `skills:` array + note in description that worker creates structure inline before proceeding.
 
    No matches → `skills: none` (explicit sentinel; worker skips loading).
 
@@ -129,9 +138,13 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
 
    > **Reading note for agents:** Metadata table (if present) appears **immediately after H1** and **before first `##` section**. Parsers: locate H1, scan forward collecting all `| Source Issue |` rows before `##`; none found → `source_issues` is `null`.
 
-### Step 5 — Final Conflict Sweep
+### Step 6 — Final Conflict Sweep
 
 Verify: no step contradicts another; no step conflicts with codebase findings from Step 2. Conflict found → raise with user via `AskUserQuestion` and resolve before saving.
+
+**Open-questions gate:** Every item in `## Open Questions` must be: answered inline, explicitly deferred (note rationale in item), or removed. Any unresolved item remaining → raise via `AskUserQuestion` and resolve before saving.
+
+All sweep checks pass → (1) if `plans/<branch>-session-spec.md` exists, move to `plans/archive/<branch>-session-spec.md`; (2) write drafted spec to disk.
 
 > **Do NOT start implementing. Create spec only.**
 
@@ -144,9 +157,11 @@ ______________________________________________________________________
 - [ ] Input mode detected: seedling or text description
 - [ ] `CLAUDE.md` ADR locations, ADR dirs, project source dirs searched for conflicts (Step 2)
 - [ ] Interview complete: ≤3 `AskUserQuestion` calls; ≥1 addressed Step 2 conflicts (if any)
+- [ ] Pre-generation checkpoint (Step 4) presented; user selected Proceed, or refinement cap (2 iterations) reached
 - [ ] `<source_issues>` non-null → metadata table present immediately after H1 and before `## Goal`; null → no table
 - [ ] Spec uses `## Goal / ## Context / ## Non-goals / ## Steps / ## Open Questions` structure
 - [ ] Each step has `**Acceptance Criteria:**` checklist with ≥1 concrete, independently falsifiable `- [ ]` item
 - [ ] Each step has `> skills:` annotation (`skills: none` if no rules match)
 - [ ] Old `plans/<branch>-session-spec.md` archived to `plans/archive/` if existed
 - [ ] Final conflict sweep complete — no intra-spec contradictions, no codebase conflicts
+- [ ] All `## Open Questions` items answered, deferred with rationale, or removed
