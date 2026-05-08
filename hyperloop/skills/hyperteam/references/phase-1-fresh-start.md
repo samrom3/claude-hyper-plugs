@@ -98,29 +98,12 @@ Wait for response.
 
 Per task, assign `role_hint`:
 
-**Core roles (always available):**
-
 | Condition | `role_hint` |
 |-----------|-------------|
-| DOC tasks | `hyperteam-techwriter` |
+| FEAT and DOC tasks | `hyperteam-worker` |
 | GATE tasks | `hyperteam-reviewer` |
 
-**Language-pack roles (when matching agents installed):**
-
-Check for language-specific agents in project's `.claude/agents/` or plugin's `agents/` (all plugin agents live flat in `agents/` for auto-discovery). Apply language-pack heuristics BEFORE falling back to `hyperteam-worker`.
-
-Example with Python pack:
-
-| Condition | `role_hint` |
-|-----------|-------------|
-| FEAT task first in chain, OR title contains: scaffold, stub, api, dataclass, interface, abc | `hyperteam-py-api-scaffolder` |
-| Other FEAT tasks | `hyperteam-py-builder` |
-
-**Fallback:**
-
-| Condition | `role_hint` |
-|-----------|-------------|
-| Any unmatched task | `hyperteam-worker` |
+No specialist role hints. All FEAT/DOC work claimed by `hyperteam-worker` via `skills:` array at claim time.
 
 ---
 
@@ -144,7 +127,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
       "title": "<story title>",
       "description": "<full story text including acceptance criteria>",
       "type": "FEAT",
-      "role_hint": "hyperteam-py-api-scaffolder",
+      "role_hint": "hyperteam-worker",
       "status": "pending",
       "blocked_by": [],
       "native_task_id": null,
@@ -160,7 +143,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
       "title": "<story title>",
       "description": "<full story text>",
       "type": "DOC",
-      "role_hint": "hyperteam-techwriter",
+      "role_hint": "hyperteam-worker",
       "status": "pending",
       "blocked_by": ["FEAT-<slug>-01"],
       "native_task_id": null,
