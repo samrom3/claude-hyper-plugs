@@ -5,58 +5,28 @@ All notable changes to the hyperloop plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-
-- `/prd` accepts one or more GitHub issue URLs anywhere in its arguments. When detected, hyperloop:
-  - Assigns each issue to the authenticated `gh` user immediately (`gh issue edit --add-assignee @me`).
-    On failure, a visible warning is printed but PRD creation is not blocked.
-  - Writes one `| Source Issue | owner/repo#N |` metadata table row per issue immediately after
-    the PRD's H1 heading and before `## 1.`, so all issue references travel with the PRD.
-  - Stores `metadata.source_issues` (array) in `team-state.json` during Phase 1 (parsed from the
-    PRD metadata table); `null` when no issues were provided. This field is immutable after first write.
-  - Appends a `Closes #N` (same-repo) or `Closes <URL>` (cross-repo) line per issue to the PR
-    body in Phase 4, so all linked issues auto-close on merge.
-- ADR-002: Two-location `source_issues` storage — documents the decision to store issue references
-  in both the PRD metadata table (for human visibility) and `team-state.json` (as the authoritative
-  runtime value), along with the canonical metadata table format spec and the array-type rationale.
-
-### Changed
-
-- `metadata.source_issue` (singular string) renamed to `metadata.source_issues` (string array) in
-  `team-state.json`. A single-issue PRD produces a one-element array; `null` is preserved for
-  no-issue PRDs.
-- Phase 1 (`phase-1-fresh-start.md`) now collects all `| Source Issue |` rows from the PRD metadata
-  table and populates `metadata.source_issues` in `team-state.json`. Assignment verification runs
-  for each issue.
-- Phase 4 (`phase-4-completion.md`) PR body now emits one `Closes` line per entry in
-  `metadata.source_issues` when the array is non-null.
-- `references/team-state-schema.md` documents `source_issues` as a formally specified optional
-  field (`string[] | null`) in the `metadata` block.
-- `references/example-prd.md` guidance updated to show both the table-present and table-absent
-  PRD states.
-
 ## [3.0.0] - 2026-05-08
 
 ### Added
 
-- `worker-skills/` library with five loadable skills: `tdd-python`, `tdd-typescript`,
-  `api-scaffold`, `tech-writing`, `tdd-generic`. Workers load assigned skills at task-claim
-  time via the `Skill` tool.
+- Five loadable worker skills at `skills/hyperwork-*/`: `hyperwork-tdd`, `hyperwork-python`,
+  `hyperwork-typescript`, `hyperwork-api-scaffold`, `hyperwork-tech-writing`. Workers load
+  assigned skills at task-claim time via the `Skill` tool.
+- `skills: none` sentinel in session-spec annotations — explicit signal that a step requires
+  no skill loading (config, env setup, non-code steps).
 
 ### Changed
 
-- `hyperteam-worker` promoted to primary executor — claims all tasks tagged
-  `role_hint: hyperteam-worker`, loads skills from `skills:` front-matter field before work.
+- `hyperteam-worker` promoted to primary executor — claims all FEAT and DOC tasks by `type`
+  field; loads skills from `skills:` front-matter before work.
 - `hyperteam-lead` extended with consult-arbiter protocol — receives worker blockers/questions
   via `SendMessage`, decides to unblock or escalate upstream. Workers never contact user directly.
 - `hyperteam-reviewer` updated to emit structured PASS/FAIL output — `result`, `task_id`,
   `findings` (FEAT review) and per-check status (GATE); no prose narratives.
 - `/hyperteam` Phase 2 team composition — N workers inferred from parallel-eligible task count
-  at kickoff (clamped 1–4); no longer derives `roles_needed` from task `role_hint` values.
-- `session-spec` skill now assigns `skills:` array to each task YAML front-matter block;
-  all tasks emit `role_hint: hyperteam-worker`.
+  at kickoff (clamped 1–4).
+- `session-spec` skill assigns `skills:` array per step using five match rules; task routing
+  driven by `type` field — `role_hint` field removed entirely.
 
 ### Removed
 

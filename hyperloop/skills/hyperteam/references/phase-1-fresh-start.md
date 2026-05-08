@@ -165,7 +165,7 @@ On user approval, write `plans/<branch>-team-state.json` (schema: `references/te
 
 Rules:
 
-- `metadata.source_issues` — array from PRD metadata table Step 1 (e.g. `["owner/repo#N"]`, or `null` if none). **MUST NOT be mutated after first write.**
+- `metadata.source_issues` — array from spec metadata table Step 1 (e.g. `["owner/repo#N"]`, or `null` if none). **MUST NOT be mutated after first write.**
 - `metadata.created_at` — current UTC timestamp, ISO 8601 (e.g. `"2026-03-14T10:00:00Z"`).
 - All tasks: `"status": "pending"`, all timestamp/result fields `null`.
 - All tasks: `"native_task_id": null` — native tasks seeded by Phase 2 Step 3.

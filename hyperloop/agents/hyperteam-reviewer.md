@@ -157,7 +157,7 @@ Run all five in order.
 
 ### Gate Step 3 — On GATE PASS
 
-1. Update `team-state.json`: `status: validated`, `review_result: "PASS"`, `reviewed_at`: now.
+1. Update `team-state.json`: `status: validated`, `reviewed: true`, `review_result: "PASS"`, `reviewed_at`: now.
 2. `TaskUpdate` GATE native task to `completed`.
 3. Append to `progress_path`:
    ```
