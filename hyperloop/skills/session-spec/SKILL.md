@@ -86,6 +86,54 @@ Max 2–3 `AskUserQuestion` calls total. Rules:
    - **One step = one commit.** Scope each step so it can be implemented and committed independently (assuming prior steps already on branch). Steps that cannot be committed in isolation must be merged or re-scoped.
    - AC per step: `- [ ]` items — concrete, independently falsifiable checks. Include: artifact exists, behavior correct, project verification command passes. For new API surface, first step creates stubs with failing tests; subsequent steps implement against stable contracts.
 
+4. **Skill assignment per step.** Every step must declare `role_hint` and `skills`. These appear in the task YAML front-matter block when hyperteam seeds the native task list.
+
+   All steps: `role_hint: hyperteam-worker`. No specialist role_hints.
+
+   Assign `skills:` using this mapping (can assign multiple):
+
+   | Task type / signals                                | skills                          |
+   | -------------------------------------------------- | ------------------------------- |
+   | Python implementation, tests, refactor             | `tdd-python`                    |
+   | TypeScript implementation, tests, refactor         | `tdd-typescript`                |
+   | API scaffold, endpoint stub, schema generation     | `api-scaffold`                  |
+   | Docs, README, changelog, ADR, user-facing writing  | `tech-writing`                  |
+   | Mixed Python + API scaffold                        | `tdd-python`, `api-scaffold`    |
+   | Unknown / untyped / general                        | `tdd-generic`                   |
+
+   Default fallback: `tdd-generic` for any step not matching the table above.
+
+   Each step annotation (embedded in spec body, parsed by hyperteam Phase 1):
+   ```
+   > skills: tdd-python
+   > role_hint: hyperteam-worker
+   ```
+
+   Example step with skill annotation:
+   ```markdown
+   ### STEP-auth-01: Implement JWT validation middleware
+
+   > skills: tdd-python
+   > role_hint: hyperteam-worker
+
+   **Acceptance Criteria:**
+   - [ ] `src/auth/middleware.py` exists with `validate_jwt(token: str) -> Claims` function
+   - [ ] Unit tests in `tests/test_middleware.py` cover valid, expired, malformed token cases
+   - [ ] `pre-commit run --all-files` exits 0
+   ```
+
+   The hyperteam skill (Phase 2, Step 3) reads these annotations and produces the native task YAML:
+   ```yaml
+   ---
+   id: FEAT-auth-01
+   type: FEAT
+   role_hint: hyperteam-worker
+   skills:
+     - tdd-python
+   blocked_by: []
+   ---
+   ```
+
    > **Reading note for agents:** Metadata table (if present) appears **immediately after H1** and **before first `##` section**. Parsers: locate H1, scan forward collecting all `| Source Issue |` rows before `##`; none found → `source_issues` is `null`.
 
 ### Step 5 — Final Conflict Sweep
