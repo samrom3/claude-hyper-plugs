@@ -68,7 +68,8 @@ Plugin agents **must** live directly in `agents/` — no subdirectories. Nested 
 
 ### Skill directory — always flat, prefixed
 
-Plugin skills **must** live directly in `skills/<name>/SKILL.md` — no subdirectories. Nested skills are not loaded by Claude Code. Prefix skill names with the plugin identifier to avoid collisions across plugins.
+Plugin skills **must** live directly in `skills/<name>/SKILL.md` — no subdirectories. Nested skills not loaded by Claude Code.
+Prefix skill names with the plugin identifier to avoid collisions across plugins.
 
 - Correct: `hyperloop/skills/hyperwork-tdd/SKILL.md`
 - Wrong: `hyperloop/skills/worker-skills/tdd/SKILL.md`
